@@ -128,7 +128,7 @@ EBuildExtAddExport(static
                     TYPE                    STATIC
                     INCLUDE_DIRS            ${KIT_INSTALL_DIR}/include
                                             ${KIT_SOURCE_DIR}/src
-                    LINK_DIRS               ${KIT_INSTALL_DIR}/lib
+                    LINK_DIRS               ${KIT_INSTALL_DIR}/lib64
                     )
 
 # ==================================================
