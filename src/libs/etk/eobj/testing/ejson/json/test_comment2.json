@@ -1,0 +1,39 @@
+ 
+{
+    "collect_by_cpu_usage_on" :    1,    // 开关, 是否根据 cpu 使用率排序后采集
+    "collect_by_cpu_threshold": 0.00,    // cpu采集阈值, 大于或等于当前阈值的数据才会被采集
+    "collect_by_cpu_usage_num":   10,    // 当前开关最多采集数量, 若为-1, 则以CPU_NUM为准, 若为-2, 则以 INT_MAX 为准
+
+    "collect_by_mem_usage_on" :    1,    // 开关, 是否根据 mem 使用率排序后采集
+    "collect_by_mem_threshold": 0.05,    // mem采集阈值, 大于或等于当前阈值的数据才会被采集
+    "collect_by_mem_usage_num":   10,    // 当前开关最多采集数量, 若为-1, 则以CPU_NUM为准, 若为-2, 则以 INT_MAX 为准
+
+    "collect_by_command_on"   :    0,    // 开关, 是否根据 命令行 采集
+    "collect_by_command_num"  :   10,    // 当前开关最多采集数量, 若为-1, 则以CPU_NUM为准, 若为-2, 则以 INT_MAX 为准
+    "collect_commands"        :   [],    // 白名单 命令行 数组, 若包含 "*", 表示采集除 有效黑名单 外的所有命令行
+    "skipped_commands"        :   [],    // 黑名单 命令行 数组, 具有更高的优先级, 开关开启 有效
+   
+    "collect_by_username_on"  :    1,    // 开关, 是否根据 用户名 采集
+    "collect_by_username_num" :   -2,    // 当前开关最多采集数量, 若为-1, 则以CPU_NUM为准, 若为-2, 则以 INT_MAX 为准
+    "collect_usernames"       :   ["*"],    // 白名单 用户名 数组, 若包含 "*", 表示采集除 有效黑名单 外的所有用户
+    "skipped_usernames"       :   ["root","rpcuser","rpc","dbus","68","uuidd","nobody","postfix","ntp","named"],    // 黑名单 用户名 数组, 具有更高的优先级, 开关开启 有效
+
+    "collect_zombie_proc_on"  :    1,    // 是否采集僵尸进程                                                         ( win32 无效 )
+
+    "collect_proc_threads_on" :    0,    // 是否采集线程, 开启在某些情况下会大幅降低性能                             ( win32 无效 )
+
+    "recollect_threshold"     : {        // 强制重采集阈值, 高于此阈值, proc 会重新读取所有进程信息
+                                         // 否则, 尝试只读取新进程和已保留进程
+                                         // 若 resv_last_collected 为 0, 此项设置失效
+                                         // 范围为 [0 ~ 50]
+        "cpu_use_change"      :  1.0     // 总 cpu 使用率变化阈值
+    },
+
+    "fccollect_threshold"     : {        // 强制采集阈值, 大于此阈值的数据会强制采集, 具有更高的优先级
+        "pcpu"                :  10.0,   // cpu 使用率
+        "pmem"                :  false   // mem 使用率
+    },
+
+    "sort_rslt_collected"     :    0,    // 是否排序采集的数据(根据 cpu 和 mem 排序)
+    "resv_last_collected"     :    1     // 是否保留(持续采集)上次的结果, 开启在大部分情况下会大幅提升性能
+}

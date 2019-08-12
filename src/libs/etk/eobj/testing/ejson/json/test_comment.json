@@ -1,0 +1,28 @@
+# comment
+
+// comment
+
+/*
+multi comment
+multi comment
+*/
+
+{
+	"false":false, #asdasdfdsasdf
+	"true":true ,//asdfasdfasdf
+	"null":null,/*sdfasdgdfsgsdfgsdfgsdfgsdfg*/
+	"int":100,
+	"double":100.123,
+	"str":"this is a str obj",
+	"arr":[false, true, null, 100, 100.123, "this is a str in arr", {}],
+	"obj":{
+		"false":false, 
+		"true":true ,
+		"null":null, 
+		"int":100, 
+		"double":100.123, 
+		"str":"this is a str obj",
+		"arr":[false, true, null, 100, 100.123, "this is a str in arr", {}],
+		"obj":{}
+	}
+}

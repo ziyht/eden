@@ -1,0 +1,9 @@
+[submodule "src/exts/libuv/libuv"]
+	path = src/exts/libuv/libuv
+	url = https://github.com/libuv/libuv
+[submodule "src/libs/etk/ecodec/libs/lz4"]
+	path = src/libs/etk/ecodec/libs/lz4
+	url = https://github.com/lz4/lz4
+[submodule "src/exts/cnats/nats.c"]
+	path = src/exts/cnats/nats.c
+	url = https://github.com/nats-io/nats.c
