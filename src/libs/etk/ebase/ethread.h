@@ -80,8 +80,6 @@ typedef pthread_barrier_t       ebarrier_t;
 #define erwlock_ulck(l)         pthread_rwlock_unlock(&(l))
 #define erwlock_free(l)         pthread_rwlock_destroy(&(l))
 
-
-
 #define ebarrier_init(b, c)     pthread_barrier_init(&(b), NULL, c)
 #define ebarrier_wait(b)        pthread_barrier_wait(&(b))
 #define ebarrier_free(b)        pthread_barrier_destroy(&(b))

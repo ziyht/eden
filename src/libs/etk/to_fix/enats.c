@@ -21,6 +21,7 @@
 #include <assert.h>
 
 // -- cnats
+#undef   _CRT_SECURE_NO_WARNINGS
 #define NATS_CONN_STATUS_NO_PREFIX
 #include "stats.h"
 #include "conn.h"

@@ -153,7 +153,13 @@ static inline u64 __hrtime_ns(clocktype_t type)
     // Initialize the present time to 0 and the timezone to UTC
     u64 tmpres = 0;
 
-    GetSystemTimeAsFileTime(&ft);
+#ifdef _WIN32_WCE
+        SYSTEMTIME st;
+        GetSystemTime(&st);
+        SystemTimeToFileTime(&st, &ft);
+#else
+        GetSystemTimeAsFileTime(&ft);
+#endif
 
     // The GetSystemTimeAsFileTime returns the number of 100 nanosecond
     // intervals since Jan 1, 1601 in a structure. Copy the high bits t
@@ -202,7 +208,7 @@ static inline u64 __hrtick_ns(clocktype_t type)
     return (u64) (counter.QuadPart * 1000000000ll / __perf_frequency.QuadPart) + __hrtime_nsec_offset;
 }
 
-int gettimeofday(struct timeval *tv, struct timezone *tz)
+static int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
     if (NULL != tv)
     {

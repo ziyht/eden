@@ -29,9 +29,8 @@ cmake_minimum_required(VERSION 2.8.1)
 
 # - 源文件 -
 set(KIT_SRCS
-    [*]${KIT_DIR}/*.h
-    [*]${KIT_DIR}/*.cpp
-    [*]${KIT_DIR}/*.c
+    [*]${KIT_DIR}/*.[h|c]
+    [*]${KIT_DIR}/getopt/*.[h|c]|WIN32
     )
 
 # - UI文件 -
@@ -44,6 +43,7 @@ set(KIT_RESOURCES
 
 # - 额外 头文件目录 -
 set(KIT_INCLUDE_DIRS
+    ${KIT_DIR}/getopt/
 )
 
 # - 额外 链接目录 -
