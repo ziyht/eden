@@ -41,8 +41,6 @@ endmacro()
 macro(EBuildExecLibM)
 if(__EBUILD_CONFIGURING_BUILD)
 
-    project(${KIT_NAME})
-
     # --------
     # 清空缓存
     EBuildClearLocalBuffer(_property_list ${_property_list})
