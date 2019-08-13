@@ -24,7 +24,7 @@
 
 #include "elz4.h"
 
-#define ESTR_VERSION "elz4 1.0.1"       // adjust elz4f structure, adjust decb2b, not decrease 1 of dlen
+#define ESTR_VERSION "elz4 1.0.2"       // fix bugs of elz4_decb()
 
 constr elz4_err(int code)
 {
@@ -44,14 +44,14 @@ i64 elz4_encb(constr in, uint inlen, estr* out)
     estr_clear(s);
     estr_ensure(s, LZ4_COMPRESSBOUND(inlen));
 
-    ret = LZ4_compress_fast(in, s, inlen, (uint)estr_avail(s), 1);
+    ret = LZ4_compress_fast(in, s, inlen, (uint)estr_cap(s), 1);
 
     if(ret > 0)
     {
         estr_incrLen(s, ret);
+        s[ret] = '\0';
     }
 
-    s[estr_len(s)] = '\0';
     *out = s;
 
     return ret;
@@ -67,7 +67,7 @@ int elz4_encb2b(constr in, uint inlen, cstr  dst, uint dlen)
 
 i64 elz4_decb(constr in, uint inlen, estr* out)
 {
-    estr s; int ret;
+    estr s; int ret; uint cap;
 
     if(!in || !out || inlen < 1)
     {
@@ -80,25 +80,29 @@ i64 elz4_decb(constr in, uint inlen, estr* out)
 
     do{
 
-        ret = LZ4_decompress_safe(in, s, inlen, (uint)estr_avail(s));
+        cap = (uint)estr_cap(s);
+
+        ret = LZ4_decompress_safe(in, s, inlen, cap);
 
         if(ret > 0)
         {
             estr_incrLen(s, ret);
+            s[ret] = '\0';
 
             break;
         }
 
-        if(ret == -7 && estr_avail(s) >= LZ4_MAX_INPUT_SIZE && estr_avail(s) >= inlen * 100)
+        if(ret == -7)
         {
-            break;
+            if(cap >= LZ4_MAX_INPUT_SIZE && cap >= inlen * 100)
+                break;
+
+            estr_ensure(s, cap * 2);
         }
-
-        estr_ensure(s, estr_avail(s) * 2);
-
+        else
+            break;
     }while(1);
 
-    s[estr_len(s)] = '\0';
     *out = s;
 
     return ret;
@@ -353,6 +357,7 @@ int   elz4s_decNext (elz4s h)
         dh->inlen -= curlen;
 
         estr_incrLen(dh->buf, ret);
+        dh->buf[estr_len(dh->buf)] = '\0';
     }
 
     return ret;
@@ -399,7 +404,6 @@ i64 elz4f_encb(constr in, u64 inlen, estr* out)
         estr_incrLen(s, ret);
     }
 
-    s[estr_len(s)] = '\0';
     *out = s;
 
     return ret;
@@ -429,7 +433,7 @@ i64 elz4f_decb(constr in, u64 inlen, estr* out)
         estr_ensure(s, next);
         curDec   = estr_avail(s);
 
-        next = LZ4F_decompress(ctx, s + estr_len(s), &curDec, in, &srcSize, 0);
+        next = LZ4F_decompress(ctx, estr_cur(s), &curDec, in, &srcSize, 0);
 
         if((i64)next < 0)
         {
@@ -449,7 +453,7 @@ i64 elz4f_decb(constr in, u64 inlen, estr* out)
 
     LZ4F_freeDecompressionContext(ctx);
 
-    s[estr_len(s)] = '\0';
+    estr_cur(s)[0] = '\0';
     *out = s;
 
     return (i64)next < 0 ? next : estr_len(s);
@@ -504,6 +508,7 @@ i64 elz4f_decb2b(constr in, u64 inlen, cstr  dst, u64 dlen)
 
         if(next == 0)
         {
+            dst[len] = '\0';
             break;
         }
 
@@ -855,7 +860,10 @@ i64   elz4f_decNext(elz4f h)
             srcSize  = end - in;
 
             if(next == 0)
+            {
+                estr_cur(s)[0] = '\0';
                 break;
+            }
 
         }while(1);
 
@@ -870,7 +878,7 @@ i64   elz4f_decNext(elz4f h)
             return curLen;
         }
 
-        return (int)next;
+        return next;
     }
 
     return 0;
