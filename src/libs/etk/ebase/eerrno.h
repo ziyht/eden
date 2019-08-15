@@ -18,384 +18,389 @@
 * CO_ERRNO                                                *
 **********************************************************/
 
-#ifndef CO_ERRNO_H_
-#define CO_ERRNO_H_
+#ifndef E_ERRNO_H_
+#define E_ERRNO_H_
 
 #include <errno.h>
+#if EDOM > 0
+# define __ERR(x) (-(x))
+#else
+# define __ERR(x) (x)
+#endif
 
-#define CO__EOF     (-4095)
-#define CO__UNKNOWN (-4094)
+#define E__EOF     (-4095)
+#define E__UNKNOWN (-4094)
 
-#define CO__EAI_ADDRFAMILY  (-3000)
-#define CO__EAI_AGAIN       (-3001)
-#define CO__EAI_BADFLAGS    (-3002)
-#define CO__EAI_CANCELED    (-3003)
-#define CO__EAI_FAIL        (-3004)
-#define CO__EAI_FAMILY      (-3005)
-#define CO__EAI_MEMORY      (-3006)
-#define CO__EAI_NODATA      (-3007)
-#define CO__EAI_NONAME      (-3008)
-#define CO__EAI_OVERFLOW    (-3009)
-#define CO__EAI_SERVICE     (-3010)
-#define CO__EAI_SOCKTYPE    (-3011)
-#define CO__EAI_BADHINTS    (-3013)
-#define CO__EAI_PROTOCOL    (-3014)
+#define E__EAI_ADDRFAMILY  (-3000)
+#define E__EAI_AGAIN       (-3001)
+#define E__EAI_BADFLAGS    (-3002)
+#define E__EAI_CANCELED    (-3003)
+#define E__EAI_FAIL        (-3004)
+#define E__EAI_FAMILY      (-3005)
+#define E__EAI_MEMORY      (-3006)
+#define E__EAI_NODATA      (-3007)
+#define E__EAI_NONAME      (-3008)
+#define E__EAI_OVERFLOW    (-3009)
+#define E__EAI_SERVICE     (-3010)
+#define E__EAI_SOCKTYPE    (-3011)
+#define E__EAI_BADHINTS    (-3013)
+#define E__EAI_PROTOCOL    (-3014)
 
 /* Only map to the system errno on non-Windows platforms. It's apparently
  * a fairly common practice for Windows programmers to redefine errno codes.
  */
 #if defined(E2BIG) && !defined(_WIN32)
-# define CO__E2BIG (-E2BIG)
+# define E__E2BIG __ERR(E2BIG)
 #else
-# define CO__E2BIG (-4093)
+# define E__E2BIG (-4093)
 #endif
 
 #if defined(EACCES) && !defined(_WIN32)
-# define CO__EACCES (-EACCES)
+# define E__EACCES __ERR(EACCES)
 #else
-# define CO__EACCES (-4092)
+# define E__EACCES (-4092)
 #endif
 
 #if defined(EADDRINUSE) && !defined(_WIN32)
-# define CO__EADDRINUSE (-EADDRINUSE)
+# define E__EADDRINUSE __ERR(EADDRINUSE)
 #else
-# define CO__EADDRINUSE (-4091)
+# define E__EADDRINUSE (-4091)
 #endif
 
 #if defined(EADDRNOTAVAIL) && !defined(_WIN32)
-# define CO__EADDRNOTAVAIL (-EADDRNOTAVAIL)
+# define E__EADDRNOTAVAIL __ERR(EADDRNOTAVAIL)
 #else
-# define CO__EADDRNOTAVAIL (-4090)
+# define E__EADDRNOTAVAIL (-4090)
 #endif
 
 #if defined(EAFNOSUPPORT) && !defined(_WIN32)
-# define CO__EAFNOSUPPORT (-EAFNOSUPPORT)
+# define E__EAFNOSUPPORT __ERR(EAFNOSUPPORT)
 #else
-# define CO__EAFNOSUPPORT (-4089)
+# define E__EAFNOSUPPORT (-4089)
 #endif
 
 #if defined(EAGAIN) && !defined(_WIN32)
-# define CO__EAGAIN (-EAGAIN)
+# define E__EAGAIN __ERR(EAGAIN)
 #else
-# define CO__EAGAIN (-4088)
+# define E__EAGAIN (-4088)
 #endif
 
 #if defined(EALREADY) && !defined(_WIN32)
-# define CO__EALREADY (-EALREADY)
+# define E__EALREADY __ERR(EALREADY)
 #else
-# define CO__EALREADY (-4084)
+# define E__EALREADY (-4084)
 #endif
 
 #if defined(EBADF) && !defined(_WIN32)
-# define CO__EBADF (-EBADF)
+# define E__EBADF __ERR(EBADF)
 #else
-# define CO__EBADF (-4083)
+# define E__EBADF (-4083)
 #endif
 
 #if defined(EBUSY) && !defined(_WIN32)
-# define CO__EBUSY (-EBUSY)
+# define E__EBUSY __ERR(EBUSY)
 #else
-# define CO__EBUSY (-4082)
+# define E__EBUSY (-4082)
 #endif
 
 #if defined(ECANCELED) && !defined(_WIN32)
-# define CO__ECANCELED (-ECANCELED)
+# define E__ECANCELED __ERR(ECANCELED)
 #else
-# define CO__ECANCELED (-4081)
+# define E__ECANCELED (-4081)
 #endif
 
 #if defined(ECHARSET) && !defined(_WIN32)
-# define CO__ECHARSET (-ECHARSET)
+# define E__ECHARSET __ERR(ECHARSET)
 #else
-# define CO__ECHARSET (-4080)
+# define E__ECHARSET (-4080)
 #endif
 
 #if defined(ECONNABORTED) && !defined(_WIN32)
-# define CO__ECONNABORTED (-ECONNABORTED)
+# define E__ECONNABORTED __ERR(ECONNABORTED)
 #else
-# define CO__ECONNABORTED (-4079)
+# define E__ECONNABORTED (-4079)
 #endif
 
 #if defined(ECONNREFUSED) && !defined(_WIN32)
-# define CO__ECONNREFUSED (-ECONNREFUSED)
+# define E__ECONNREFUSED __ERR(ECONNREFUSED)
 #else
-# define CO__ECONNREFUSED (-4078)
+# define E__ECONNREFUSED (-4078)
 #endif
 
 #if defined(ECONNRESET) && !defined(_WIN32)
-# define CO__ECONNRESET (-ECONNRESET)
+# define E__ECONNRESET __ERR(ECONNRESET)
 #else
-# define CO__ECONNRESET (-4077)
+# define E__ECONNRESET (-4077)
 #endif
 
 #if defined(EDESTADDRREQ) && !defined(_WIN32)
-# define CO__EDESTADDRREQ (-EDESTADDRREQ)
+# define E__EDESTADDRREQ __ERR(EDESTADDRREQ)
 #else
-# define CO__EDESTADDRREQ (-4076)
+# define E__EDESTADDRREQ (-4076)
 #endif
 
 #if defined(EEXIST) && !defined(_WIN32)
-# define CO__EEXIST (-EEXIST)
+# define E__EEXIST __ERR(EEXIST)
 #else
-# define CO__EEXIST (-4075)
+# define E__EEXIST (-4075)
 #endif
 
 #if defined(EFAULT) && !defined(_WIN32)
-# define CO__EFAULT (-EFAULT)
+# define E__EFAULT __ERR(EFAULT)
 #else
-# define CO__EFAULT (-4074)
+# define E__EFAULT (-4074)
 #endif
 
 #if defined(EHOSTUNREACH) && !defined(_WIN32)
-# define CO__EHOSTUNREACH (-EHOSTUNREACH)
+# define E__EHOSTUNREACH __ERR(EHOSTUNREACH)
 #else
-# define CO__EHOSTUNREACH (-4073)
+# define E__EHOSTUNREACH (-4073)
 #endif
 
 #if defined(EINTR) && !defined(_WIN32)
-# define CO__EINTR (-EINTR)
+# define E__EINTR __ERR(EINTR)
 #else
-# define CO__EINTR (-4072)
+# define E__EINTR (-4072)
 #endif
 
 #if defined(EINVAL) && !defined(_WIN32)
-# define CO__EINVAL (-EINVAL)
+# define E__EINVAL __ERR(EINVAL)
 #else
-# define CO__EINVAL (-4071)
+# define E__EINVAL (-4071)
 #endif
 
 #if defined(EIO) && !defined(_WIN32)
-# define CO__EIO (-EIO)
+# define E__EIO __ERR(EIO)
 #else
-# define CO__EIO (-4070)
+# define E__EIO (-4070)
 #endif
 
 #if defined(EISCONN) && !defined(_WIN32)
-# define CO__EISCONN (-EISCONN)
+# define E__EISCONN __ERR(EISCONN)
 #else
-# define CO__EISCONN (-4069)
+# define E__EISCONN (-4069)
 #endif
 
 #if defined(EISDIR) && !defined(_WIN32)
-# define CO__EISDIR (-EISDIR)
+# define E__EISDIR __ERR(EISDIR)
 #else
-# define CO__EISDIR (-4068)
+# define E__EISDIR (-4068)
 #endif
 
 #if defined(ELOOP) && !defined(_WIN32)
-# define CO__ELOOP (-ELOOP)
+# define E__ELOOP __ERR(ELOOP)
 #else
-# define CO__ELOOP (-4067)
+# define E__ELOOP (-4067)
 #endif
 
 #if defined(EMFILE) && !defined(_WIN32)
-# define CO__EMFILE (-EMFILE)
+# define E__EMFILE __ERR(EMFILE)
 #else
-# define CO__EMFILE (-4066)
+# define E__EMFILE (-4066)
 #endif
 
 #if defined(EMSGSIZE) && !defined(_WIN32)
-# define CO__EMSGSIZE (-EMSGSIZE)
+# define E__EMSGSIZE __ERR(EMSGSIZE)
 #else
-# define CO__EMSGSIZE (-4065)
+# define E__EMSGSIZE (-4065)
 #endif
 
 #if defined(ENAMETOOLONG) && !defined(_WIN32)
-# define CO__ENAMETOOLONG (-ENAMETOOLONG)
+# define E__ENAMETOOLONG __ERR(ENAMETOOLONG)
 #else
-# define CO__ENAMETOOLONG (-4064)
+# define E__ENAMETOOLONG (-4064)
 #endif
 
 #if defined(ENETDOWN) && !defined(_WIN32)
-# define CO__ENETDOWN (-ENETDOWN)
+# define E__ENETDOWN __ERR(ENETDOWN)
 #else
-# define CO__ENETDOWN (-4063)
+# define E__ENETDOWN (-4063)
 #endif
 
 #if defined(ENETUNREACH) && !defined(_WIN32)
-# define CO__ENETUNREACH (-ENETUNREACH)
+# define E__ENETUNREACH __ERR(ENETUNREACH)
 #else
-# define CO__ENETUNREACH (-4062)
+# define E__ENETUNREACH (-4062)
 #endif
 
 #if defined(ENFILE) && !defined(_WIN32)
-# define CO__ENFILE (-ENFILE)
+# define E__ENFILE __ERR(ENFILE)
 #else
-# define CO__ENFILE (-4061)
+# define E__ENFILE (-4061)
 #endif
 
 #if defined(ENOBUFS) && !defined(_WIN32)
-# define CO__ENOBUFS (-ENOBUFS)
+# define E__ENOBUFS __ERR(ENOBUFS)
 #else
-# define CO__ENOBUFS (-4060)
+# define E__ENOBUFS (-4060)
 #endif
 
 #if defined(ENODEV) && !defined(_WIN32)
-# define CO__ENODEV (-ENODEV)
+# define E__ENODEV __ERR(ENODEV)
 #else
-# define CO__ENODEV (-4059)
+# define E__ENODEV (-4059)
 #endif
 
 #if defined(ENOENT) && !defined(_WIN32)
-# define CO__ENOENT (-ENOENT)
+# define E__ENOENT __ERR(ENOENT)
 #else
-# define CO__ENOENT (-4058)
+# define E__ENOENT (-4058)
 #endif
 
 #if defined(ENOMEM) && !defined(_WIN32)
-# define CO__ENOMEM (-ENOMEM)
+# define E__ENOMEM __ERR(ENOMEM)
 #else
-# define CO__ENOMEM (-4057)
+# define E__ENOMEM (-4057)
 #endif
 
 #if defined(ENONET) && !defined(_WIN32)
-# define CO__ENONET (-ENONET)
+# define E__ENONET __ERR(ENONET)
 #else
-# define CO__ENONET (-4056)
+# define E__ENONET (-4056)
 #endif
 
 #if defined(ENOSPC) && !defined(_WIN32)
-# define CO__ENOSPC (-ENOSPC)
+# define E__ENOSPC __ERR(ENOSPC)
 #else
-# define CO__ENOSPC (-4055)
+# define E__ENOSPC (-4055)
 #endif
 
 #if defined(ENOSYS) && !defined(_WIN32)
-# define CO__ENOSYS (-ENOSYS)
+# define E__ENOSYS __ERR(ENOSYS)
 #else
-# define CO__ENOSYS (-4054)
+# define E__ENOSYS (-4054)
 #endif
 
 #if defined(ENOTCONN) && !defined(_WIN32)
-# define CO__ENOTCONN (-ENOTCONN)
+# define E__ENOTCONN __ERR(ENOTCONN)
 #else
-# define CO__ENOTCONN (-4053)
+# define E__ENOTCONN (-4053)
 #endif
 
 #if defined(ENOTDIR) && !defined(_WIN32)
-# define CO__ENOTDIR (-ENOTDIR)
+# define E__ENOTDIR __ERR(ENOTDIR)
 #else
-# define CO__ENOTDIR (-4052)
+# define E__ENOTDIR (-4052)
 #endif
 
 #if defined(ENOTEMPTY) && !defined(_WIN32)
-# define CO__ENOTEMPTY (-ENOTEMPTY)
+# define E__ENOTEMPTY __ERR(ENOTEMPTY)
 #else
-# define CO__ENOTEMPTY (-4051)
+# define E__ENOTEMPTY (-4051)
 #endif
 
 #if defined(ENOTSOCK) && !defined(_WIN32)
-# define CO__ENOTSOCK (-ENOTSOCK)
+# define E__ENOTSOCK __ERR(ENOTSOCK)
 #else
-# define CO__ENOTSOCK (-4050)
+# define E__ENOTSOCK (-4050)
 #endif
 
 #if defined(ENOTSUP) && !defined(_WIN32)
-# define CO__ENOTSUP (-ENOTSUP)
+# define E__ENOTSUP __ERR(ENOTSUP)
 #else
-# define CO__ENOTSUP (-4049)
+# define E__ENOTSUP (-4049)
 #endif
 
 #if defined(EPERM) && !defined(_WIN32)
-# define CO__EPERM (-EPERM)
+# define E__EPERM __ERR(EPERM)
 #else
-# define CO__EPERM (-4048)
+# define E__EPERM (-4048)
 #endif
 
 #if defined(EPIPE) && !defined(_WIN32)
-# define CO__EPIPE (-EPIPE)
+# define E__EPIPE __ERR(EPIPE)
 #else
-# define CO__EPIPE (-4047)
+# define E__EPIPE (-4047)
 #endif
 
 #if defined(EPROTO) && !defined(_WIN32)
-# define CO__EPROTO (-EPROTO)
+# define E__EPROTO __ERR(EPROTO)
 #else
-# define CO__EPROTO (-4046)
+# define E__EPROTO __ERR(4046)
 #endif
 
 #if defined(EPROTONOSUPPORT) && !defined(_WIN32)
-# define CO__EPROTONOSUPPORT (-EPROTONOSUPPORT)
+# define E__EPROTONOSUPPORT __ERR(EPROTONOSUPPORT)
 #else
-# define CO__EPROTONOSUPPORT (-4045)
+# define E__EPROTONOSUPPORT (-4045)
 #endif
 
 #if defined(EPROTOTYPE) && !defined(_WIN32)
-# define CO__EPROTOTYPE (-EPROTOTYPE)
+# define E__EPROTOTYPE __ERR(EPROTOTYPE)
 #else
-# define CO__EPROTOTYPE (-4044)
+# define E__EPROTOTYPE (-4044)
 #endif
 
 #if defined(EROFS) && !defined(_WIN32)
-# define CO__EROFS (-EROFS)
+# define E__EROFS __ERR(EROFS)
 #else
-# define CO__EROFS (-4043)
+# define E__EROFS (-4043)
 #endif
 
 #if defined(ESHUTDOWN) && !defined(_WIN32)
-# define CO__ESHUTDOWN (-ESHUTDOWN)
+# define E__ESHUTDOWN __ERR(ESHUTDOWN)
 #else
-# define CO__ESHUTDOWN (-4042)
+# define E__ESHUTDOWN (-4042)
 #endif
 
 #if defined(ESPIPE) && !defined(_WIN32)
-# define CO__ESPIPE (-ESPIPE)
+# define E__ESPIPE __ERR(ESPIPE)
 #else
-# define CO__ESPIPE (-4041)
+# define E__ESPIPE (-4041)
 #endif
 
 #if defined(ESRCH) && !defined(_WIN32)
-# define CO__ESRCH (-ESRCH)
+# define E__ESRCH __ERR(ESRCH)
 #else
-# define CO__ESRCH (-4040)
+# define E__ESRCH (-4040)
 #endif
 
 #if defined(ETIMEDOUT) && !defined(_WIN32)
-# define CO__ETIMEDOUT (-ETIMEDOUT)
+# define E__ETIMEDOUT __ERR(ETIMEDOUT)
 #else
-# define CO__ETIMEDOUT (-4039)
+# define E__ETIMEDOUT (-4039)
 #endif
 
 #if defined(ETXTBSY) && !defined(_WIN32)
-# define CO__ETXTBSY (-ETXTBSY)
+# define E__ETXTBSY __ERR(ETXTBSY)
 #else
-# define CO__ETXTBSY (-4038)
+# define E__ETXTBSY (-4038)
 #endif
 
 #if defined(EXDEV) && !defined(_WIN32)
-# define CO__EXDEV (-EXDEV)
+# define E__EXDEV __ERR(EXDEV)
 #else
-# define CO__EXDEV (-4037)
+# define E__EXDEV (-4037)
 #endif
 
 #if defined(EFBIG) && !defined(_WIN32)
-# define CO__EFBIG (-EFBIG)
+# define E__EFBIG __ERR(EFBIG)
 #else
-# define CO__EFBIG (-4036)
+# define E__EFBIG (-4036)
 #endif
 
 #if defined(ENOPROTOOPT) && !defined(_WIN32)
-# define CO__ENOPROTOOPT (-ENOPROTOOPT)
+# define E__ENOPROTOOPT __ERR(ENOPROTOOPT)
 #else
-# define CO__ENOPROTOOPT (-4035)
+# define E__ENOPROTOOPT (-4035)
 #endif
 
 #if defined(ERANGE) && !defined(_WIN32)
-# define CO__ERANGE (-ERANGE)
+# define E__ERANGE __ERR(ERANGE)
 #else
-# define CO__ERANGE (-4034)
+# define E__ERANGE (-4034)
 #endif
 
 #if defined(ENXIO) && !defined(_WIN32)
-# define CO__ENXIO (-ENXIO)
+# define E__ENXIO __ERR(ENXIO)
 #else
-# define CO__ENXIO (-4033)
+# define E__ENXIO (-4033)
 #endif
 
 #if defined(EMLINK) && !defined(_WIN32)
-# define CO__EMLINK (-EMLINK)
+# define E__EMLINK __ERR(EMLINK)
 #else
-# define CO__EMLINK (-4032)
+# define E__EMLINK (-4032)
 #endif
 
 /* EHOSTDOWN is not visible on BSD-like systems when _POSIX_C_SOURCE is
@@ -403,107 +408,129 @@
  * icky to hard-code it.
  */
 #if defined(EHOSTDOWN) && !defined(_WIN32)
-# define CO__EHOSTDOWN (-EHOSTDOWN)
+# define E__EHOSTDOWN __ERR(EHOSTDOWN)
 #elif defined(__APPLE__) || \
       defined(__DragonFly__) || \
       defined(__FreeBSD__) || \
       defined(__FreeBSD_kernel__) || \
       defined(__NetBSD__) || \
       defined(__OpenBSD__)
-# define CO__EHOSTDOWN (-64)
+# define E__EHOSTDOWN (-64)
 #else
-# define CO__EHOSTDOWN (-4031)
+# define E__EHOSTDOWN (-4031)
 #endif
+
+#if defined(EREMOTEIO) && !defined(_WIN32)
+# define E__EREMOTEIO __ERR(EREMOTEIO)
+#else
+# define E__EREMOTEIO (-4030)
+#endif
+
+#if defined(ENOTTY) && !defined(_WIN32)
+# define E__ENOTTY __ERR(ENOTTY)
+#else
+# define E__ENOTTY (-4029)
+#endif
+
+#if defined(EFTYPE) && !defined(_WIN32)
+# define E__EFTYPE __ERR(EFTYPE)
+#else
+# define E__EFTYPE (-4028)
+#endif
+
 
 #if (!_WIN32)
 #include <netdb.h>
 #endif
 
 /* Expand this list if necessary. */
-#define CO_ERRNO_MAP(XX)                                                      \
-  XX(E2BIG, "argument list too long")                                         \
-  XX(EACCES, "permission denied")                                             \
-  XX(EADDRINUSE, "address already in use")                                    \
-  XX(EADDRNOTAVAIL, "address not available")                                  \
-  XX(EAFNOSUPPORT, "address family not supported")                            \
-  XX(EAGAIN, "resource temporarily unavailable")                              \
-  XX(EAI_ADDRFAMILY, "address family not supported")                          \
-  XX(EAI_AGAIN, "temporary failure")                                          \
-  XX(EAI_BADFLAGS, "bad ai_flags value")                                      \
-  XX(EAI_BADHINTS, "invalid value for hints")                                 \
-  XX(EAI_CANCELED, "request canceled")                                        \
-  XX(EAI_FAIL, "permanent failure")                                           \
-  XX(EAI_FAMILY, "ai_family not supported")                                   \
-  XX(EAI_MEMORY, "out of memory")                                             \
-  XX(EAI_NODATA, "no address")                                                \
-  XX(EAI_NONAME, "unknown node or service")                                   \
-  XX(EAI_OVERFLOW, "argument buffer overflow")                                \
-  XX(EAI_PROTOCOL, "resolved protocol is unknown")                            \
-  XX(EAI_SERVICE, "service not available for socket type")                    \
-  XX(EAI_SOCKTYPE, "socket type not supported")                               \
-  XX(EALREADY, "connection already in progress")                              \
-  XX(EBADF, "bad file descriptor")                                            \
-  XX(EBUSY, "resource busy or locked")                                        \
-  XX(ECANCELED, "operation canceled")                                         \
-  XX(ECHARSET, "invalid Unicode character")                                   \
-  XX(ECONNABORTED, "software caused connection abort")                        \
-  XX(ECONNREFUSED, "connection refused")                                      \
-  XX(ECONNRESET, "connection reset by peer")                                  \
-  XX(EDESTADDRREQ, "destination address required")                            \
-  XX(EEXIST, "file already exists")                                           \
-  XX(EFAULT, "bad address in system call argument")                           \
-  XX(EFBIG, "file too large")                                                 \
-  XX(EHOSTUNREACH, "host is unreachable")                                     \
-  XX(EINTR, "interrupted system call")                                        \
-  XX(EINVAL, "invalid argument")                                              \
-  XX(EIO, "i/o error")                                                        \
-  XX(EISCONN, "socket is already connected")                                  \
-  XX(EISDIR, "illegal operation on a directory")                              \
-  XX(ELOOP, "too many symbolic links encountered")                            \
-  XX(EMFILE, "too many open files")                                           \
-  XX(EMSGSIZE, "message too long")                                            \
-  XX(ENAMETOOLONG, "name too long")                                           \
-  XX(ENETDOWN, "network is down")                                             \
-  XX(ENETUNREACH, "network is unreachable")                                   \
-  XX(ENFILE, "file table overflow")                                           \
-  XX(ENOBUFS, "no buffer space available")                                    \
-  XX(ENODEV, "no such device")                                                \
-  XX(ENOENT, "no such file or directory")                                     \
-  XX(ENOMEM, "not enough memory")                                             \
-  XX(ENONET, "machine is not on the network")                                 \
-  XX(ENOPROTOOPT, "protocol not available")                                   \
-  XX(ENOSPC, "no space left on device")                                       \
-  XX(ENOSYS, "function not implemented")                                      \
-  XX(ENOTCONN, "socket is not connected")                                     \
-  XX(ENOTDIR, "not a directory")                                              \
-  XX(ENOTEMPTY, "directory not empty")                                        \
-  XX(ENOTSOCK, "socket operation on non-socket")                              \
-  XX(ENOTSUP, "operation not supported on socket")                            \
-  XX(EPERM, "operation not permitted")                                        \
-  XX(EPIPE, "broken pipe")                                                    \
-  XX(EPROTO, "protocol error")                                                \
-  XX(EPROTONOSUPPORT, "protocol not supported")                               \
-  XX(EPROTOTYPE, "protocol wrong type for socket")                            \
-  XX(ERANGE, "result too large")                                              \
-  XX(EROFS, "read-only file system")                                          \
-  XX(ESHUTDOWN, "cannot send after transport endpoint shutdown")              \
-  XX(ESPIPE, "invalid seek")                                                  \
-  XX(ESRCH, "no such process")                                                \
-  XX(ETIMEDOUT, "connection timed out")                                       \
-  XX(ETXTBSY, "text file is busy")                                            \
-  XX(EXDEV, "cross-device link not permitted")                                \
-  XX(UNKNOWN, "unknown error")                                                \
-  XX(EOF, "end of file")                                                      \
-  XX(ENXIO, "no such device or address")                                      \
-  XX(EMLINK, "too many links")                                                \
-  XX(EHOSTDOWN, "host is down")                                               \
+#define __E_ERRNO_MAP(XX)                                                      \
+    XX(E2BIG            , "argument list too long")                                         \
+    XX(EACCES           , "permission denied")                                             \
+    XX(EADDRINUSE       , "address already in use")                                    \
+    XX(EADDRNOTAVAIL    , "address not available")                                  \
+    XX(EAFNOSUPPORT     , "address family not supported")                            \
+    XX(EAGAIN           , "resource temporarily unavailable")                              \
+    XX(EAI_ADDRFAMILY   , "address family not supported")                          \
+    XX(EAI_AGAIN        , "temporary failure")                                          \
+    XX(EAI_BADFLAGS     , "bad ai_flags value")                                      \
+    XX(EAI_BADHINTS     , "invalid value for hints")                                 \
+    XX(EAI_CANCELED     , "request canceled")                                        \
+    XX(EAI_FAIL         , "permanent failure")                                           \
+    XX(EAI_FAMILY       , "ai_family not supported")                                   \
+    XX(EAI_MEMORY       , "out of memory")                                             \
+    XX(EAI_NODATA       , "no address")                                                \
+    XX(EAI_NONAME       , "unknown node or service")                                   \
+    XX(EAI_OVERFLOW     , "argument buffer overflow")                                \
+    XX(EAI_PROTOCOL     , "resolved protocol is unknown")                            \
+    XX(EAI_SERVICE      , "service not available for socket type")                    \
+    XX(EAI_SOCKTYPE     , "socket type not supported")                               \
+    XX(EALREADY         , "connection already in progress")                              \
+    XX(EBADF            , "bad file descriptor")                                            \
+    XX(EBUSY            , "resource busy or locked")                                        \
+    XX(ECANCELED        , "operation canceled")                                         \
+    XX(ECHARSET         , "invalid Unicode character")                                   \
+    XX(ECONNABORTED     , "software caused connection abort")                        \
+    XX(ECONNREFUSED     , "connection refused")                                      \
+    XX(ECONNRESET       , "connection reset by peer")                                  \
+    XX(EDESTADDRREQ     , "destination address required")                            \
+    XX(EEXIST           , "file already exists")                                           \
+    XX(EFAULT           , "bad address in system call argument")                           \
+    XX(EFBIG            , "file too large")                                                 \
+    XX(EHOSTUNREACH     , "host is unreachable")                                     \
+    XX(EINTR            , "interrupted system call")                                        \
+    XX(EINVAL           , "invalid argument")                                              \
+    XX(EIO              , "i/o error")                                                        \
+    XX(EISCONN          , "socket is already connected")                                  \
+    XX(EISDIR           , "illegal operation on a directory")                              \
+    XX(ELOOP            , "too many symbolic links encountered")                            \
+    XX(EMFILE           , "too many open files")                                           \
+    XX(EMSGSIZE         , "message too long")                                            \
+    XX(ENAMETOOLONG     , "name too long")                                           \
+    XX(ENETDOWN         , "network is down")                                             \
+    XX(ENETUNREACH      , "network is unreachable")                                   \
+    XX(ENFILE           , "file table overflow")                                           \
+    XX(ENOBUFS          , "no buffer space available")                                    \
+    XX(ENODEV           , "no such device")                                                \
+    XX(ENOENT           , "no such file or directory")                                     \
+    XX(ENOMEM           , "not enough memory")                                             \
+    XX(ENONET           , "machine is not on the network")                                 \
+    XX(ENOPROTOOPT      , "protocol not available")                                   \
+    XX(ENOSPC           , "no space left on device")                                       \
+    XX(ENOSYS           , "function not implemented")                                      \
+    XX(ENOTCONN         , "socket is not connected")                                     \
+    XX(ENOTDIR          , "not a directory")                                              \
+    XX(ENOTEMPTY        , "directory not empty")                                        \
+    XX(ENOTSOCK         , "socket operation on non-socket")                              \
+    XX(ENOTSUP          , "operation not supported on socket")                            \
+    XX(EPERM            , "operation not permitted")                                        \
+    XX(EPIPE            , "broken pipe")                                                    \
+    XX(EPROTO           , "protocol error")                                                \
+    XX(EPROTONOSUPPORT  , "protocol not supported")                               \
+    XX(EPROTOTYPE       , "protocol wrong type for socket")                            \
+    XX(ERANGE           , "result too large")                                              \
+    XX(EROFS            , "read-only file system")                                          \
+    XX(ESHUTDOWN        , "cannot send after transport endpoint shutdown")              \
+    XX(ESPIPE           , "invalid seek")                                                  \
+    XX(ESRCH            , "no such process")                                                \
+    XX(ETIMEDOUT        , "connection timed out")                                       \
+    XX(ETXTBSY          , "text file is busy")                                            \
+    XX(EXDEV            , "cross-device link not permitted")                                \
+    XX(UNKNOWN          , "unknown error")                                                \
+    XX(EOF              , "end of file")                                                      \
+    XX(ENXIO            , "no such device or address")                                      \
+    XX(EMLINK           , "too many links")                                                \
+    XX(EHOSTDOWN        , "host is down")                                               \
+    XX(EREMOTEIO        , "remote I/O error")                                           \
+    XX(ENOTTY           , "inappropriate ioctl for device")                                \
+    XX(EFTYPE           , "inappropriate file type or format")                                              \
 
 
 typedef enum {
-#define XX(code, _) CO_ ## code = CO__ ## code,
-    CO_ERRNO_MAP(XX)
+#define XX(code, _) E_ ## code = E__ ## code,
+    __E_ERRNO_MAP(XX)
 #undef XX
-    CO_ERRNO_MAX = CO__EOF - 1
-}co_errno_t;
+    E_ERRNO_MAX = E__EOF - 1
+}e_errno_t, eerrno;
 
-#endif /* CO_ERRNO_H_ */
+#endif /* E_ERRNO_H_ */

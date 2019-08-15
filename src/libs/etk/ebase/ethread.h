@@ -1,4 +1,4 @@
-﻿/// =====================================================================================
+/// =====================================================================================
 ///
 ///       Filename:  ethread.h
 ///
@@ -29,11 +29,20 @@
 #include "etype.h"
 #include "ecompat.h"
 
+#if defined(_AIX) || \
+    defined(__OpenBSD__) || \
+    !defined(PTHREAD_BARRIER_SERIAL_THREAD)
+typedef struct pthread_barrier_s pthread_barrier_t;
+int pthread_barrier_init(pthread_barrier_t* barrier, unsigned int count);
+int pthread_barrier_wait(pthread_barrier_t* barrier);
+void pthread_barrier_destroy(pthread_barrier_t* barrier);
+#endif
+
 typedef pthread_t               ethread_t;
 typedef pthread_once_t          eonce_t;
 typedef pthread_key_t           ethkey_t;
 typedef pthread_mutex_t         emutex_t;
-typedef pthread_spinlock_t      espin_t;
+//typedef pthread_spinlock_t      espin_t;
 typedef pthread_cond_t          econd_t;
 typedef pthread_rwlock_t        erwlock_t;
 typedef pthread_barrier_t       ebarrier_t;
@@ -89,8 +98,8 @@ static __always_inline int __pthread_cond_timedwait(econd_t* co, emutex_t* mu, i
     struct timespec ts;
 
 #if defined(__APPLE__) && defined(__MACH__)
-    ts.tv_sec = timeout / NANOSEC;
-    ts.tv_nsec = timeout % NANOSEC;
+    ts.tv_sec  = timeout / ((uint64_t) 1e9);
+    ts.tv_nsec = timeout % ((uint64_t) 1e9);
     return pthread_cond_timedwait_relative_np(co, mu, &ts);
 #else
     i64 t =  timeout + e_nowms();

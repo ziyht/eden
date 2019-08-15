@@ -20,7 +20,7 @@
 #endif
 
 #undef  EJSON_VERSION
-#define EJSON_VERSION "ejson 1.1.6"     // fix some logic bugs and fix build warning
+#define EJSON_VERSION "ejson 1.1.7"     // fix bugs of ejson_first() and ejson_next()
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1831,8 +1831,8 @@ int ejson_pCmpS(eobj r, constr path, constr str) { return ejson_cmpS(_getObjByPa
 
 #define _o_is_parent(r) (r && (_eo_typeco(r) == _EJSON_CO_OBJ || _eo_typeco(r) == _EJSON_CO_ARR))
 
-eobj  ejson_first(eobj r) { return _o_is_parent(r) ? _n_o(_r_head(_eo_rn(r))) : 0; }
-eobj  ejson_last (eobj r) { return _o_is_parent(r) ? _n_o(_r_tail(_eo_rn(r))) : 0; }
+eobj  ejson_first(eobj r) { return (_o_is_parent(r) && _r_head(_eo_rn(r))) ? _n_o(_r_head(_eo_rn(r))) : 0; }
+eobj  ejson_last (eobj r) { return (_o_is_parent(r) && _r_tail(_eo_rn(r))) ? _n_o(_r_tail(_eo_rn(r))) : 0; }
 eobj  ejson_next (eobj o) { return (o && _n_lnext(_eo_dn(o))) ? _n_o(_n_lnext(_eo_dn(o))) : 0; }
 eobj  ejson_prev (eobj o) { return (o && _n_lprev(_eo_dn(o))) ? _n_o(_n_lprev(_eo_dn(o))) : 0; }
 

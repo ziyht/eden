@@ -571,6 +571,9 @@ static int __elog_file_cleanup(_elogh h, i64 nows)
             {
                 if(0 == stat(logpath, &_stat_))
                 {
+#ifdef __APPLE__
+#define st_ctim st_ctimespec
+#endif
                     if((nows - _stat_.st_ctim.tv_sec) > whole_period)    // check time
                     {
                         if(-1 == remove(logpath)){_elog_err("[err] cleanup logfile: %s [err: %s]", logpath, strerror(errno));}
@@ -816,7 +819,7 @@ static int __elog_fflush_to_file(_elogh h)
 
         if(ret == -1)
         {
-            fprintf(stderr, "write faild for path(fd:%d):\"%s\": %s | %"PRIi64"\n%s", h->fd, h->path, strerror(errno), estr_len(h->msgs), h->msgs);
+            fprintf(stderr, "write faild for path(fd:%d):\"%s\": %s | %"PRIi64"\n%s", h->fd, h->path, strerror(errno), (i64)estr_len(h->msgs), h->msgs);
             fflush(stderr);
             ret = 0;
         }
@@ -862,6 +865,8 @@ static int  __elog_fflush_buffered(_elogh h, _elog_t _e)
  *         1 - log write ok and process a io operation
  *         2 - log write ok and not process a io operation, write to buffer
  */
+
+//TODO: create write thread to write to file
 int  elog_log(elog e, constr sfile, int sline, constr fmt, ...)
 {
     _elogh h; _elog _e; time_t s; i64 ns; char _us[10]; struct tm lt; uint fmtlen, timelen, uslen, i = 0; char timestr[ELOG_TIMESTR_MAXLEN]; va_list ap;

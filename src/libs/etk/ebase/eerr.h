@@ -2,6 +2,7 @@
 #define __EERR_H__
 
 #include "etype.h"
+#include "eerrno.h"
 
 static constr __g_err__;
 static char   __g_err_buf__[1024];

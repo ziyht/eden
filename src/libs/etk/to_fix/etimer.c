@@ -1,4 +1,4 @@
-/// =====================================================================================
+﻿/// =====================================================================================
 ///
 ///       Filename:  etimer.c
 ///
@@ -711,7 +711,9 @@ int    etimer_runing(etimer _e)
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #define __need_timeval
+#ifndef __APPLE__
 #include <bits/time.h>
+#endif
 #include <sys/time.h>
 #endif
 
