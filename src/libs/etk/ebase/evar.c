@@ -19,7 +19,7 @@
 
 #include "evar.h"
 #include "estr.h"
-#include "estr_p.h"
+#include "libs/estr_p.h"
 
 #define EVAR_VERISON "evar 1.0.0"
 

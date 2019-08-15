@@ -81,6 +81,8 @@ set(KIT_DEPENDS
 
 
 # - 测试 -
-ETestAdd(testing      ON)
-ETestAdd(testing/evar ON)
-ETestAdd(testing/evec ON)
+ETestAdd(testing/estr   ON)
+ETestAdd(testing/evar   ON)
+ETestAdd(testing/evec   ON)
+
+ETestAdd(tutorial/estr  ON)

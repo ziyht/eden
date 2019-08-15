@@ -41,7 +41,7 @@
 #include "estr.h"
 
 #include "eobj_p.h"
-#include "estr_p.h"
+#include "libs/estr_p.h"
 
 #include "ejson.h"
 

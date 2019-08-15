@@ -41,10 +41,10 @@
 #define   STB_SPRINTF_COPY_STR_PROMOTION                // memcpy is ok
 #define   STB_SPRINTF_MIN              ((int*)user)[0]  //
 #define   STB_SPRINTF_DECORATE(name)   __estr_##name    // defined it will not conflict with other using
-#include "stb_sprintf.h"
+#include "libs/stb_sprintf.h"
+#include "libs/estr_p.h"
 
 #include "estr.h"
-#include "estr_p.h"
 
 #define ESTR_VERSION "estr 1.3.0"       // import stb_sprintf.c
 

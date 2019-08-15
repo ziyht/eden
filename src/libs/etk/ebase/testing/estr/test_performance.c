@@ -7,7 +7,7 @@
 
 #include "etype.h"
 #include "estr.h"
-#include "stb_sprintf.h"
+#include "libs/stb_sprintf.h"
 
 static char bigstr[4096] = {0};
 

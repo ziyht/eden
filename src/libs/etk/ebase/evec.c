@@ -21,8 +21,9 @@
 #include "etype.h"
 #include "eutils.h"
 #include "estr.h"
-#include "estr_p.h"
 #include "eobj_p.h"
+
+#include "libs/estr_p.h"
 
 #include "evec.h"
 
