@@ -32,6 +32,7 @@ set(KIT_SRCS
     [*]${KIT_DIR}/*.h
     [*]${KIT_DIR}/*.cpp
     [*]${KIT_DIR}/*.c
+    [*]${KIT_DIR}/libs/*.[h|c]
     )
 
 # - UI文件 -
@@ -84,5 +85,6 @@ set(KIT_DEPENDS
 ETestAdd(testing/estr   ON)
 ETestAdd(testing/evar   ON)
 ETestAdd(testing/evec   ON)
+ETestAdd(testing/eatom  ON)
 
 ETestAdd(tutorial/estr  ON)

@@ -21,7 +21,7 @@ ETestAddTestSet(estr
            test_sstr.c
            test_split.c
            test_perf.c
-    )
+)
 
 ETestAddTestSet(cmpQString OFF
 
@@ -29,7 +29,7 @@ ETestAddTestSet(cmpQString OFF
 
     DEPENDS Qt5::Core
 
-    )
+)
 
 ETestAddTestSet(
     TYPE    Benchmark

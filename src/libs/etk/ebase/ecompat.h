@@ -33,7 +33,7 @@ extern "C" {
 ///
 ///
 #if defined(_WIN32) && defined(_MSC_VER)
-#define __always_inline inline
+#define __always_inline __forceinline
 #define __attribute__(...)
 #else
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
@@ -78,6 +78,8 @@ extern "C" {
 #define write       _write
 #define access      _access
 
+#define snprintf    _snprintf
+
 #define	STDIN_FILENO	0	/* Standard input.  */
 #define	STDOUT_FILENO	1	/* Standard output.  */
 #define	STDERR_FILENO	2	/* Standard error output.  */
@@ -95,13 +97,16 @@ extern "C" {
 /// ---------------------- string.h ---------------------
 ///
 ///
-
 #if defined(_MSC_VER)
 
 #define memccpy     _memccpy
 #define strdup      _strdup
+#define strtoll     _strtoi64
+#define strtoull    _strtoui64
+#define strcasecmp  _stricmp
+#define strncasecmp _strnicmp
 
-#define strlen(s)   ((uint)(strchr(s, '\0') - s))
+#define strlen(s)   ((uint)(strchr(s, '\0') - s))   // higher performance, maybe not check the character encoding
 
 #define __MEMMEM_DECLARED
 void* memmem(const void *l, size_t l_len, const void *s, size_t s_len);
