@@ -10,7 +10,7 @@
  *  ------------------------------------------------
 */
 
-#include <Windows.h>  // (include Windows.h)
+//#include <Windows.h>  // (include Windows.h)
 
 typedef enum {
     __eatomic_memory_order_relaxed,
@@ -62,12 +62,12 @@ __eatomic_fence(__eatomic_memory_order_t mo) {
 #define ATOMIC_INTERLOCKED_SUFFIX_2
 #define ATOMIC_INTERLOCKED_SUFFIX_3 64
 
-#define JEMALLOC_GENERATE_ATOMICS(type, short_type, lg_size)            \
+#define __EATOMIC_GENERATE_ATOMICS(type, short_type, lg_size)           \
 typedef struct {                                                        \
     ATOMIC_INTERLOCKED_REPR(lg_size) repr;                              \
 } __eatomic_##short_type##_t;                                           \
                                                                         \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
 __eatomic_load_##short_type(const __eatomic_##short_type##_t *a,        \
     __eatomic_memory_order_t mo) {                                      \
     ATOMIC_INTERLOCKED_REPR(lg_size) ret = a->repr;                     \
@@ -77,7 +77,7 @@ __eatomic_load_##short_type(const __eatomic_##short_type##_t *a,        \
     return (type) ret;                                                  \
 }                                                                       \
                                                                         \
-__EATOMIC_INLINE void                                                      \
+__EATOMIC_INLINE void                                                   \
 __eatomic_store_##short_type(__eatomic_##short_type##_t *a,             \
     type val, __eatomic_memory_order_t mo) {                            \
     if (mo != __eatomic_memory_order_relaxed) {                         \
@@ -89,21 +89,21 @@ __eatomic_store_##short_type(__eatomic_##short_type##_t *a,             \
     }                                                                   \
 }                                                                       \
                                                                         \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
 __eatomic_exchange_##short_type(__eatomic_##short_type##_t *a, type val,\
     __eatomic_memory_order_t mo) {                                      \
     return (type)ATOMIC_INTERLOCKED_NAME(_InterlockedExchange,          \
         lg_size)(&a->repr, (ATOMIC_INTERLOCKED_REPR(lg_size))val);      \
 }                                                                       \
                                                                         \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
 __eatomic_compare_and_swap_##short_type(__eatomic_##short_type##_t *a,	\
     type expected, type desired, __eatomic_memory_order_t mo) {         \
     return (type)ATOMIC_INTERLOCKED_NAME(_InterlockedCompareExchange,   \
         lg_size)(&a->repr, desired, expected);                          \
 }                                                                       \
                                                                         \
-__EATOMIC_INLINE bool                                                      \
+__EATOMIC_INLINE bool                                                   \
 __eatomic_compare_exchange_weak_##short_type(__eatomic_##short_type##_t *a,	\
     type *expected, type desired, __eatomic_memory_order_t success_mo,  \
     __eatomic_memory_order_t failure_mo) {                              \
@@ -122,7 +122,7 @@ __eatomic_compare_exchange_weak_##short_type(__eatomic_##short_type##_t *a,	\
     }                                                                   \
 }                                                                       \
                                                                         \
-__EATOMIC_INLINE bool                                                      \
+__EATOMIC_INLINE bool                                                   \
 __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
     type *expected, type desired, __eatomic_memory_order_t success_mo,  \
     __eatomic_memory_order_t failure_mo) {                              \
@@ -132,8 +132,8 @@ __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
 }
 
 
-#define JEMALLOC_GENERATE_INT_ATOMICS(type, short_type, lg_size)        \
-JEMALLOC_GENERATE_ATOMICS(type, short_type, lg_size)                    \
+#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type, lg_size)        \
+__EATOMIC_GENERATE_ATOMICS(type, short_type, lg_size)                    \
                                                                         \
 __EATOMIC_INLINE type                                                      \
 __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a,         \

@@ -7,7 +7,7 @@ include(cmake/emake/import.cmake)
 # ------------------------------------
 # -- 添加 kit
 #
-
+EBuildAddExtM(libuv     ON  "")
 EBuildAddLibM(etk       ON  "eden toolkit" )
 
 

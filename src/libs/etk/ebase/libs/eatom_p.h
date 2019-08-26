@@ -2,17 +2,17 @@
 #define EATOM_P_H_
 
 #if defined(__linux__) || defined(__APPLE__)
-//#include "eatom_p_gcc_sync.h"
+#include "eatom_p_gcc_sync.h"
 //#include "eatom_p_gcc_atomic.h"
-#include "eatom_p_c11.h"
+//#include "eatom_p_c11.h"
 #elif defined(WIN32)
 #include "eatom_p_msvc.h"
 #endif
 
-JEMALLOC_GENERATE_INT_ATOMICS(i8 , 8 , 0)
-JEMALLOC_GENERATE_INT_ATOMICS(i16, 16, 1)
-JEMALLOC_GENERATE_INT_ATOMICS(i32, 32, 2)
-JEMALLOC_GENERATE_INT_ATOMICS(i64, 64, 3)
+__EATOMIC_GENERATE_INT_ATOMICS(i8 , 8 , 0)
+__EATOMIC_GENERATE_INT_ATOMICS(i16, 16, 1)
+__EATOMIC_GENERATE_INT_ATOMICS(i32, 32, 2)
+__EATOMIC_GENERATE_INT_ATOMICS(i64, 64, 3)
 
 #define __eatom_get8( p)                __eatom_get8_m (p, __eatomic_memory_order_acq_rel)
 #define __eatom_get16(p)                __eatom_get16_m(p, __eatomic_memory_order_acq_rel)

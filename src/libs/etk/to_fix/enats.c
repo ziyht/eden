@@ -1234,10 +1234,8 @@ static inline void __enatp_waitLazy(enatp p)
 {
     is1_ret(!p || !p->quit, );
 
-    if(p->lazy_thread)
+    if(0 == ethread_kill(p->lazy_thread, 0))
         ethread_join(p->lazy_thread);
-
-    p->lazy_thread = 0;
 }
 
 static inline void __enatp_exeWait(enatp p)
@@ -1353,7 +1351,7 @@ static void __enatp_exeLazyThread(enatp p)
 {
     if(p->quit) return;
 
-    if(p->lazy_thread == 0)
+    if(ethread_kill(p->lazy_thread, 0) != 0)
     {
         ethread_init(p->lazy_thread, __enatp_lazy_thread, p);
         return ;

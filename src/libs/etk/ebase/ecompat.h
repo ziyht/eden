@@ -60,6 +60,11 @@ extern "C" {
 #ifndef __IMPORT_KERNEL32_LIB
 #define __IMPORT_KERNEL32_LIB
 #pragma comment(lib, "Kernel32.lib")
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "Iphlpapi.lib")
+#pragma comment(lib, "Psapi.lib")
+#pragma comment(lib, "userenv.lib")
+#pragma comment(lib, "msvcrtd.lib")
 #endif
 
 #define sleep(s)	Sleep((s) * 1000)

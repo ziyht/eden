@@ -101,7 +101,7 @@ EBuildAssignTargetDestF(
 #       Qt5::Core|WIN32      将只在 WIN32 平台上依赖 Qt5::Core
 #
 set(KIT_DEPENDS
-
+libuv::static
     )
 
 

@@ -24,9 +24,7 @@
 #include "ealloc.h"
 
 /* Note: guard clauses should match uv_barrier_init's in src/unix/thread.c. */
-#if defined(_AIX) || \
-    defined(__OpenBSD__) || \
-    !defined(PTHREAD_BARRIER_SERIAL_THREAD)
+#if !defined(_WIN32) && (defined(_AIX) || defined(__OpenBSD__) || !defined(PTHREAD_BARRIER_SERIAL_THREAD))
 /* TODO(bnoordhuis) Merge into uv_barrier_t in v2. */
 struct _barrier {
     emutex_t  mutex;

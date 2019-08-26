@@ -19,7 +19,7 @@
 # --------------------------------------
 set(_PROJECT_NAME       etools)
 set(_PROJECT_VERSION    1 0 0 1)        # major minor patch [build]
-set(_LOG_LEVEL          2)              # 0: 关闭，1：dbg，2：inf，3：wrn
+set(_LOG_LEVEL          0)              # 0: 关闭，1：dbg，2：inf，3：wrn
 set(_BUILD_TYPE         )               # Debug|Release|MinSizeRel|RelWithDebInfo [FORCE]
 
 # --------------------------------------

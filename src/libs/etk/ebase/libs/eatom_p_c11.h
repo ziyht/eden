@@ -1,6 +1,15 @@
 ﻿#ifndef EATOM_P_C11_H_
 #define EATOM_P_C11_H_
 
+/** ------------------------------------------------
+ *
+ *  Thanks to JEMALLOC, this file is rebuilt from
+ *
+ *      jemalloc/include/jemalloc/internal/atomic_c11.h
+ *
+ *  ------------------------------------------------
+*/
+
 #include <stdatomic.h>
 
 #define __EATOMIC_INLINE static __always_inline
@@ -14,7 +23,7 @@
 
 #define __eatomic_fence atomic_thread_fence
 
-#define JEMALLOC_GENERATE_ATOMICS(type, short_type,                     \
+#define __EATOMIC_GENERATE_ATOMICS(type, short_type,                     \
     /* unused */ lg_size)                                               \
 typedef _Atomic(type) __eatomic_##short_type##_t;                       \
                                                                         \
@@ -71,9 +80,9 @@ __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
  * Integral types have some special operations available that non-integral ones
  * lack.
  */
-#define JEMALLOC_GENERATE_INT_ATOMICS(type, short_type,                 \
+#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                 \
     /* unused */ lg_size)                                               \
-JEMALLOC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)       \
+__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)       \
                                                                         \
 __EATOMIC_INLINE type                                                   \
 __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a,         \

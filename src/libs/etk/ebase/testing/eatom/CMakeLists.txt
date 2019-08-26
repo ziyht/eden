@@ -1,4 +1,4 @@
-# =====================================================================================
+﻿# =====================================================================================
 #
 #       Filename:  CMakeLists.txt
 #
@@ -32,7 +32,9 @@ cmake_minimum_required(VERSION 2.8.1)
 
 ETestAddTestSet(eatom
     CASES  test_basic.c
-           test_cas.c
+           test_multi_thread.c
+
+    DEPENDS -lpthread|LINUX
 )
 
 

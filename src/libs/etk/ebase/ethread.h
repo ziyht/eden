@@ -29,9 +29,7 @@
 #include "etype.h"
 #include "ecompat.h"
 
-#if defined(_AIX) || \
-    defined(__OpenBSD__) || \
-    !defined(PTHREAD_BARRIER_SERIAL_THREAD)
+#if !defined(_WIN32) && (defined(_AIX) || defined(__OpenBSD__) || !defined(PTHREAD_BARRIER_SERIAL_THREAD))
 typedef struct pthread_barrier_s pthread_barrier_t;
 int pthread_barrier_init(pthread_barrier_t* barrier, unsigned int count);
 int pthread_barrier_wait(pthread_barrier_t* barrier);
@@ -54,6 +52,7 @@ typedef pthread_barrier_t       ebarrier_t;
 #define ethread_detach(t)       pthread_detach((t))
 #define ethread_quit(t)         pthread_cancel(t)
 #define ethread_self()          pthread_self()
+#define ethread_kill(t, s)      pthread_kill(t, s)
 #define ethread_equal(t1, t2)   pthread_equal(t1, t2)
 
 #define ethkey_init(k)          pthread_key_create(&(k))

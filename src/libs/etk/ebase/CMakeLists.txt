@@ -77,7 +77,7 @@ EBuildAddFilesF(
 #
 set(KIT_DEPENDS
     -lpthread|LINUX
-    winpthreads::static|WIN32
+    pthreads-win32::static|WIN32
     )
 
 

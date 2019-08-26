@@ -47,7 +47,7 @@ __eatomic_fence(__eatomic_memory_order_t mo) {
     __atomic_thread_fence(__eatomic_enum_to_builtin(mo));
 }
 
-#define JEMALLOC_GENERATE_ATOMICS(type, short_type,                     \
+#define __EATOMIC_GENERATE_ATOMICS(type, short_type,                     \
     /* unused */ lg_size)                                               \
 typedef struct {                                                        \
     type repr;                                                          \
@@ -107,9 +107,9 @@ __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
 }
 
 
-#define JEMALLOC_GENERATE_INT_ATOMICS(type, short_type,                 \
+#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                 \
     /* unused */ lg_size)                                               \
-JEMALLOC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)       \
+__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)       \
                                                                         \
 __EATOMIC_INLINE type                                                   \
 __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a, type val,	\

@@ -25,7 +25,6 @@
 #define EATOM_VERSION "eatom 1.0.0"
 
 #include "etype.h"
-#include "eobj.h"
 #include "libs/eatom_p.h"
 
 /** -----------------------------------------------------------
@@ -33,11 +32,11 @@
  *
 */
 
-#define eatom_mo_relaxed            __eatomic_memory_order_relaxed
-#define eatom_mo_acquire            __eatomic_memory_order_acquire
-#define eatom_mo_release            __eatomic_memory_order_release
-#define eatom_mo_acq_rel            __eatomic_memory_order_acq_rel
-#define eatom_mo_seq_cst            __eatomic_memory_order_seq_cst
+#define eatom_mo_relaxed            __eatomic_memory_order_relaxed  // No barriers or synchronization.
+#define eatom_mo_acquire            __eatomic_memory_order_acquire  // Barrier to hoisting of code and synchronizes with release (or stronger) semantic stores from another thread.
+#define eatom_mo_release            __eatomic_memory_order_release  // Barrier to sinking of code and synchronizes with acquire (or stronger) semantic loads from another thread.
+#define eatom_mo_acq_rel            __eatomic_memory_order_acq_rel  // Full barrier in both directions and synchronizes with acquire loads and release stores in another thread.
+#define eatom_mo_seq_cst            __eatomic_memory_order_seq_cst  // Full barrier in both directions and synchronizes with acquire loads and release stores in all threads.
 
 #define eatom_fence(mo)             __eatomic_fence((mo))
 
