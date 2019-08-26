@@ -7,3 +7,6 @@
 [submodule "src/exts/cnats/nats.c"]
 	path = src/exts/cnats/nats.c
 	url = https://github.com/nats-io/nats.c
+[submodule "src/exts/pthreads-win32/pthreads-win32"]
+	path = src/exts/pthreads-win32/pthreads-win32
+	url = https://github.com/ziyht/pthreads-win32
