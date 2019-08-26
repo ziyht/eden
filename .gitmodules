@@ -1,6 +1,6 @@
 [submodule "src/exts/libuv/libuv"]
 	path = src/exts/libuv/libuv
-	url = https://github.com/libuv/libuv
+	url = https://github.com/ziyht/libuv
 [submodule "src/libs/etk/ecodec/libs/lz4"]
 	path = src/libs/etk/ecodec/libs/lz4
 	url = https://github.com/lz4/lz4
