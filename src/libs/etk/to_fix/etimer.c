@@ -261,7 +261,7 @@ static void __polling_wakeup_all_loops(void* arg)
             __wakeup_inner_loop(loop);
         }
 
-        loop_cnt = ejson_size(all_loops);
+        loop_cnt = ejson_len(all_loops);
         emutex_ulck(_wakeup_mu);
 
     }while(loop_cnt);
@@ -310,7 +310,7 @@ static int __unregister_wakeup(etloop loop)
     emutex_lock(_wakeup_mu);
     ejson_freeR(_all_loops, key);
 
-    if(0 == ejson_size(_all_loops))
+    if(0 == ejson_len(_all_loops))
     {
         ert_destroy(_inner_rt, 0);
 

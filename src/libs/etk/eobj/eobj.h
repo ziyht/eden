@@ -160,13 +160,14 @@ i64    eobj_keyI (eobj o);
 constr eobj_keyS (eobj o);
 etypeo eobj_typeo(eobj o);
 etypec eobj_typec(eobj o);
+constr eobj_typeS(eobj o);          // Return obj type as str
 uint   eobj_len  (eobj o);
 i64    eobj_valI (eobj o);
 f64    eobj_valF (eobj o);
 constr eobj_valS (eobj o);
 cptr   eobj_valP (eobj o);
 cptr   eobj_valR (eobj o);
-
+bool   eobj_isTrue(eobj o);
 
 /** ---------------------------------------------
  * @brief eobj comparing
@@ -182,8 +183,6 @@ cptr   eobj_valR (eobj o);
 int    eobj_cmpI(eobj o, i64    val);
 int    eobj_cmpF(eobj o, f64    val);
 int    eobj_cmpS(eobj o, constr str);
-
-constr eobj_typeS(eobj o);
 
 #ifdef __cplusplus
 }

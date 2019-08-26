@@ -238,7 +238,7 @@ static void __ebench_man_exec_cases()
 
             ejson_foreach_s(bench->_oprts, ooprt)
             {
-                int all = ejson_size(bench->_cases) * ejson_size(bench->_oprts);
+                int all = ejson_len(bench->_cases) * ejson_len(bench->_oprts);
                 int len = strlen(llstr(all));
 
                 i++;
@@ -251,7 +251,7 @@ static void __ebench_man_exec_cases()
                     oprt->oprt((ebench_p)bench);
                     printf(" ok\n");fflush(stdout);
 
-                    if(i % ejson_size(bench->_oprts) == 0 && result)
+                    if(i % ejson_len(bench->_oprts) == 0 && result)
                         result->need_gap = 1;
 
                     continue;
@@ -277,7 +277,7 @@ static void __ebench_man_exec_cases()
 
                 printf(" ok\n");fflush(stdout);
 
-                if(i % ejson_size(bench->_oprts) == 0)
+                if(i % ejson_len(bench->_oprts) == 0)
                     result->need_gap = 1;
             }
         }

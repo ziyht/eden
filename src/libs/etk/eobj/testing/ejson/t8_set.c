@@ -90,7 +90,7 @@ static int test_resetTk(ejson r, etypeo type)
                     {
                         ejson_rSetT(r, itostr(i), type);
 
-                        if(!ejson_size(r))
+                        if(!ejson_len(r))
                             continue;
 
                         eexpect_num(ejson_rType(r, itostr(i)),  type);
@@ -150,7 +150,7 @@ static int test_resetIk(ejson r)
                     {
                         ejson_rSetI(r, itostr(i), 123);
 
-                        if(!ejson_size(r))
+                        if(!ejson_len(r))
                             continue;
 
                         eexpect_num(ejson_rType(r, itostr(i)),  ENUM);
@@ -213,7 +213,7 @@ static int test_resetFk(ejson r)
                     {
                         ejson_rSetF(r, itostr(i), 123.12);
 
-                        if(!ejson_size(r))
+                        if(!ejson_len(r))
                             continue;
 
                         eexpect_num(ejson_rType(r, itostr(i)),  ENUM);
@@ -281,7 +281,7 @@ static int test_resetSk(ejson r)
                     {
                         ejson_rSetS(r, itostr(i), STR);
 
-                        if(!ejson_size(r))
+                        if(!ejson_len(r))
                             continue;
 
                         eexpect_num(ejson_rType(r, itostr(i)),  ESTR);
@@ -351,7 +351,7 @@ static int test_resetPk(ejson r)
                     {
                         ejson_rSetP(r, itostr(i), &key[i]);
 
-                        if(!ejson_size(r))
+                        if(!ejson_len(r))
                             continue;
 
                         eexpect_num(ejson_rType(r, itostr(i)),  EPTR);
@@ -415,7 +415,7 @@ static int test_resetRk(ejson r)
                     {
                         ejson_rSetR(r, itostr(i), i);
 
-                        if(!ejson_size(r))
+                        if(!ejson_len(r))
                             continue;
 
                         eexpect_num(ejson_rType(r, itostr(i)),  ERAW);

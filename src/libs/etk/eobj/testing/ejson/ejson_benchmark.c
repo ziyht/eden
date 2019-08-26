@@ -57,7 +57,7 @@ void obj_bench_add(ebench_p b)
         ejson_addT(e, ullstr(i), ETRUE);
     }
 
-    b->scale = ejson_size(e);
+    b->scale = ejson_len(e);
 }
 
 void obj_bench_add_rand(ebench_p b)
@@ -72,7 +72,7 @@ void obj_bench_add_rand(ebench_p b)
             ejson_takeR(e, str_data[i]);
     }
 
-    b->scale = ejson_size(e);
+    b->scale = ejson_len(e);
 }
 
 void obj_bench_find(ebench_p b)
@@ -90,7 +90,7 @@ void obj_bench_find(ebench_p b)
         }
     }
 
-    b->scale = ejson_size(e);
+    b->scale = ejson_len(e);
 }
 
 void obj_bench_find_rand(ebench_p b)
@@ -104,12 +104,12 @@ void obj_bench_find_rand(ebench_p b)
         ejson_r(e, str_data[i]);
     }
 
-    b->scale = ejson_size(e);
+    b->scale = ejson_len(e);
 }
 
 void obj_bench_free(ebench_p b)
 {
-    b->oprts = b->scale = ejson_size(b->bprvt.p);
+    b->oprts = b->scale = ejson_len(b->bprvt.p);
     ejson_free(b->bprvt.p);
 }
 
@@ -129,7 +129,7 @@ void arr_bench_add(ebench_p b)
         ejson_addT(e, 0, ETRUE);
     }
 
-    b->scale = ejson_size(e);
+    b->scale = ejson_len(e);
 }
 
 void arr_bench_find(ebench_p b)
@@ -147,12 +147,12 @@ void arr_bench_find(ebench_p b)
         }
     }
 
-     b->scale = ejson_size(e);
+     b->scale = ejson_len(e);
 }
 
 void arr_bench_free(ebench_p b)
 {
-    b->oprts = b->scale = ejson_size(b->bprvt.p);
+    b->oprts = b->scale = ejson_len(b->bprvt.p);
     ejson_free(b->bprvt.p);
 }
 

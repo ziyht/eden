@@ -16,6 +16,7 @@ f64    eobj_valF (eobj o) { _eo_retF(o); }
 constr eobj_valS (eobj o) { _eo_retS(o); }
 cptr   eobj_valP (eobj o) { _eo_retP(o); }
 cptr   eobj_valR (eobj o) { _eo_retR(o); }
+bool   eobj_isTrue(eobj o){ return __eobj_isTrue(o); }
 
 int  eobj_cmpI(eobj o, i64    val) { return o ? _eo_typeo(o) == ENUM ? __eobj_valI(o) < val ? -1 : __eobj_valI(o) > val ? 1 : 0 : -3 : -2; }
 int  eobj_cmpF(eobj o, f64    val) { return o ? _eo_typeo(o) == ENUM ? __eobj_valF(o) < val ? -1 : __eobj_valF(o) > val ? 1 : 0 : -3 : -2; }

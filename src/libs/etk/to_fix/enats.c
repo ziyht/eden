@@ -1119,7 +1119,7 @@ constr enats_err(enats trans)
 #define enatp_add_lazytrans(p, add) ejson_addP(p->lazy_transs, add->name, add)
 #define enatp_get_lazytrans(p,name) ejson_valPk(p->lazy_transs, name)
 #define enatp_del_lazytrans(p, del) ejson_freeR(p->lazy_transs, del->name)
-#define enatp_cnt_lazytrans(p     ) ejson_size (p->lazy_transs)
+#define enatp_cnt_lazytrans(p     ) ejson_len (p->lazy_transs)
 
 #define enatp_add_url(p,url,ntname) ejso_addS(p->urls, url, ntname)
 #define enatp_get_url(p,url       ) ejsr     (p->urls, url        )
@@ -1396,7 +1396,7 @@ static inline int __enatp_getAvailNameIdForGroup(enatp p, ejson egroup, char ena
 {
     enatp_lock(p);
 
-    int id = ejson_size(egroup);
+    int id = ejson_len(egroup);
 
     do
     {
@@ -1423,7 +1423,7 @@ static inline void __enatp_rmEmptyGroup(enatp p, ejson egroup)
 {
     enatp_lock(p);
 
-    if(ejson_size(egroup) == 0)
+    if(ejson_len(egroup) == 0)
         ejson_freeO(p->name_groups, egroup);
 
     enatp_ulck(p);
@@ -2235,7 +2235,7 @@ int    enatp_cntTrans(enatp p, constr name)
     enatp_lock(p);
 
     if(name == ENATP_CONN_TRANS || name == ENATP_LAZY_TRANS)
-        cnt = ejson_size(eroom);
+        cnt = ejson_len(eroom);
     else
     {
         if((EPTR == eobj_typeo(eroom)))
@@ -2246,7 +2246,7 @@ int    enatp_cntTrans(enatp p, constr name)
         {
             ejson_foreach_s(eroom, itr1)
             {
-                cnt += (EPTR == eobj_typeo(itr1)) ? 1 : ejson_size(itr1);
+                cnt += (EPTR == eobj_typeo(itr1)) ? 1 : ejson_len(itr1);
             }
         }
     }
@@ -2262,7 +2262,7 @@ constr enatp_connurls(enatp p, int hidepass)
 
     // -- check args
     is0_exeret(p, errset(p, "invalid enatp (nullptr)"), NULL); estr_clear(p->connurls);
-    is0_ret(ejson_size(p->conn_transs), NULL);
+    is0_ret(ejson_len(p->conn_transs), NULL);
 
     // -- travles
     enatp_lock(p);
@@ -2288,7 +2288,7 @@ constr enatp_lazyurls(enatp p, int hidepass)
 
     // -- check args
     is0_exeret(p, errset(p, "invalid enatp (nullptr)");, NULL); estr_clear(p->lazyurls);
-    is0_ret(ejson_size(p->lazy_transs), NULL);
+    is0_ret(ejson_len(p->lazy_transs), NULL);
 
     // -- travles
     enatp_lock(p);

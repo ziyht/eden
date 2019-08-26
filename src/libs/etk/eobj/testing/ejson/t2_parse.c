@@ -14,7 +14,7 @@ static int __obj_check(ejson r)
 
     eunexpc_ptr(r, 0);
     eexpect_num(ejson_type(r), EOBJ);
-    eexpect_num(ejson_size(r), 8);
+    eexpect_num(ejson_len(r), 8);
 
     e = ejson_r(r, "false" ); eunexpc_ptr(e, 0); eexpect_num(ejson_type(e), EFALSE);
     e = ejson_r(r, "true"  ); eunexpc_ptr(e, 0); eexpect_num(ejson_type(e), ETRUE);
@@ -147,17 +147,17 @@ static int parse_file()
 
     e = ejson_parseFEx(DIR FILE1, 0, COMMENT);
     eunexpc_ptr(e, 0);
-    eexpect_num(ejson_size(e), 8);
+    eexpect_num(ejson_len(e), 8);
     eexpect_num(ejson_free(e), 31);
 
     e = ejson_parseFEx(DIR FILE2, 0, 0);
     eunexpc_ptr(e, 0);
-    eexpect_num(ejson_size(e), 8);
+    eexpect_num(ejson_len(e), 8);
     eexpect_num(ejson_free(e), 31);
 
     e = ejson_parseFEx(DIR FILE3, 0, COMMENT);
     eunexpc_ptr(e, 0);
-    eexpect_num(ejson_size(e), 20);
+    eexpect_num(ejson_len(e), 20);
     eexpect_num(ejson_free(e), 35);
 
     t = e_nowms();
@@ -165,7 +165,7 @@ static int parse_file()
     printf("parse  \t cost: %6"PRId64"ms\n", e_nowms() - t); fflush(stdout);
 
     eunexpc_ptr(e, 0);
-    eexpect_num(ejson_size(e), 11);
+    eexpect_num(ejson_len(e), 11);
 
     t = e_nowms();
     eexpect_num(ejson_free(e), 37778);
