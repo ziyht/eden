@@ -2674,10 +2674,31 @@ i64 __ejson_makeRoom_counter_p(_ejsr r, constr path, i64 val)
  *  -----------------------------------------------------
  */
 
+#pragma pack(1)
 typedef struct __sort_args_s{
     eobj_cmp_ex_cb  cmp;
     eval            prvt;
-}* __sort_args;
+}__sort_args_t, * __sort_args;
+#pragma pack()
+
+static _ejsn __merg_sort(_ejsn a, _ejsn b, uint len, __sort_args args);
+static void  __ejson_sort(_ejsr r, __sort_args args);
+
+ejson  ejson_sort (ejson r,              eobj_cmp_cb cmp) { if(r){ __sort_args_t args = {(eobj_cmp_ex_cb)cmp, EVAL_0}; __ejson_sort(_eo_rn(r), &args); }return r; }
+ejson  ejson_rSort(ejson r, constr rawk, eobj_cmp_cb cmp) { return ejson_sort(_getObjByRawk(_eo_rn(r), rawk), cmp); }
+ejson  ejson_pSort(ejson r, constr path, eobj_cmp_cb cmp) { return ejson_sort(_getObjByPath(_eo_rn(r), path), cmp); }
+
+ejson  ejson_sort_r (ejson r,              eobj_cmp_ex_cb cmp, eval prvt) { if(r) { __sort_args_t args = {cmp, prvt }; __ejson_sort(_eo_rn(r), &args);} return r; }
+ejson  ejson_rSort_r(ejson r, constr rawk, eobj_cmp_ex_cb cmp, eval prvt) { return ejson_sort_r(_getObjByRawk(_eo_rn(r), rawk), cmp, prvt);}
+ejson  ejson_pSort_r(ejson r, constr path, eobj_cmp_ex_cb cmp, eval prvt) { return ejson_sort_r(_getObjByPath(_eo_rn(r), path), cmp, prvt);}
+
+static void __ejson_sort(_ejsr r, __sort_args args)
+{
+    is1_ret((_r_typeco(r) != _EJSON_CO_OBJ && _r_typeco(r) != _EJSON_CO_ARR) || _r_len(r) <= 1, );
+
+    _r_head(r) = __merg_sort(_r_head(r), _r_tail(r), _r_len(r), args);
+    while(_n_lnext(_r_tail(r))) _r_tail(r) = _n_lnext(_r_tail(r));
+}
 
 static _ejsn __merg_sort(_ejsn a, _ejsn b, uint len, __sort_args args)
 {
@@ -2785,24 +2806,6 @@ over:
 
     return a;
 }
-
-static void __ejson_sort(_ejsr r, eobj_cmp_ex_cb cmp, eval prvt)
-{
-    struct __sort_args_s args = {cmp, prvt};
-
-    is1_ret((_r_typeco(r) != _EJSON_CO_OBJ && _r_typeco(r) != _EJSON_CO_ARR) || _r_len(r) <= 1, );
-
-    _r_head(r) = __merg_sort(_r_head(r), _r_tail(r), _r_len(r), &args);
-    while(_n_lnext(_r_tail(r))) _r_tail(r) = _n_lnext(_r_tail(r));
-}
-
-ejson  ejson_sort (ejson r,              eobj_cmp_cb cmp) { if(r) __ejson_sort(_eo_rn(r), (eobj_cmp_ex_cb)cmp, EVAL_0); return r; }
-ejson  ejson_rSort(ejson r, constr rawk, eobj_cmp_cb cmp) { return ejson_sort(_getObjByRawk(_eo_rn(r), rawk), cmp); }
-ejson  ejson_pSort(ejson r, constr path, eobj_cmp_cb cmp) { return ejson_sort(_getObjByPath(_eo_rn(r), path), cmp); }
-
-ejson  ejson_sort_r (ejson r,              eobj_cmp_ex_cb cmp, eval prvt) { if(r) __ejson_sort(_eo_rn(r), cmp, prvt); return r; }
-ejson  ejson_rSort_r(ejson r, constr rawk, eobj_cmp_ex_cb cmp, eval prvt) { return ejson_sort_r(_getObjByRawk(_eo_rn(r), rawk), cmp, prvt);}
-ejson  ejson_pSort_r(ejson r, constr path, eobj_cmp_ex_cb cmp, eval prvt) { return ejson_sort_r(_getObjByPath(_eo_rn(r), path), cmp, prvt);}
 
 int __KEYS_ACS(eobj a, eobj b)
 {

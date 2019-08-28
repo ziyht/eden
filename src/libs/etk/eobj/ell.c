@@ -423,16 +423,18 @@ inline eobj  ell_next (eobj o) { return (o && _n_next(_eo_dn(o))) ? _n_o(_n_next
 inline eobj  ell_prev (eobj o) { return (o && _n_prev(_eo_dn(o))) ? _n_o(_n_prev(_eo_dn(o))) : 0; }
 
 
+#pragma pack(1)
 typedef struct __sort_args_s{
     eobj_cmp_ex_cb  cmp;
     eval            prvt;
 }__sort_args_t, * __sort_args;
+#pragma pack()
 
 static __always_inline void  __ell_sort(ell l, __sort_args args);
 static __always_inline _elln __merg_sort(_elln a, _elln b, uint len, __sort_args args);
 
-void  ell_sort  (ell l, eobj_cmp_cb    cmp)            { if(l) { __ell_sort(l, (__sort_args)&cmp); } }
-void  ell_sort_r(ell l, eobj_cmp_ex_cb cmp, eval prvt) { if(l) { __ell_sort(l, (__sort_args)&cmp); } E_UNUSED(prvt); }
+void  ell_sort  (ell l, eobj_cmp_cb    cmp)            { if(l) { __sort_args_t args = {(eobj_cmp_ex_cb)cmp, EVAL_0}; __ell_sort(l, &args); } }
+void  ell_sort_r(ell l, eobj_cmp_ex_cb cmp, eval prvt) { if(l) { __sort_args_t args = {cmp,                 prvt  }; __ell_sort(l, &args); }}
 
 static void __ell_sort(ell l, __sort_args args)
 {

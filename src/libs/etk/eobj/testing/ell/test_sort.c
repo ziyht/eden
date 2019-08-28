@@ -6,6 +6,22 @@
 
 #include "ell.h"
 
+#define CHECK_VAL 12
+
+int __cmp_acs(eobj a, eobj b, eval prvt)
+{
+    eexpect_eq(prvt.i64, CHECK_VAL);
+
+    return EOBJ_VALI(a) - EOBJ_VALI(b);
+}
+
+int __cmp_des(eobj a, eobj b, eval prvt)
+{
+    eexpect_eq(prvt.i64, CHECK_VAL);
+
+    return EOBJ_VALI(b) - EOBJ_VALI(a);
+}
+
 static int test_sort_case1()
 {
     int i;
@@ -31,6 +47,20 @@ static int test_sort_case1()
     }
 
     ell_sort(l, ELL_VALI_ACS);
+    i = 0;
+    ell_foreach_s(l, itr)
+    {
+        eexpect_num(eobj_valI(itr), i++);
+    }
+
+    ell_sort_r(l, __cmp_des, EVAL_I64(CHECK_VAL));
+    i = 9;
+    ell_foreach_s(l, itr)
+    {
+        eexpect_num(eobj_valI(itr), i--);
+    }
+
+    ell_sort_r(l, __cmp_acs, EVAL_I64(CHECK_VAL));
     i = 0;
     ell_foreach_s(l, itr)
     {
