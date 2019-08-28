@@ -331,4 +331,24 @@ eobj   __eobj_subS(eobj o, constr from, constr to, __eobj_alloc alloc)
     return o;
 }
 
+int EOBJ_VALI_ACS(eobj a, eobj b)
+{
+    if(_eo_typeo(a) == ENUM)
+    {
+        if(_eo_typeo(b) == ENUM)  return _eo_valI(a) > _eo_valI(b) ? 1 : 0;   // swap when return val > 0
+        else                      return 0;
+    }
 
+    return _eo_typeo(b) == ENUM ? -1 : 0;
+}
+
+int EOBJ_VALI_DES(eobj a, eobj b)
+{
+    if(_eo_typeo(a) == ENUM)
+    {
+        if(_eo_typeo(b) == ENUM) return _eo_valI(b) > _eo_valI(a) ? 1 : 0;
+        else                     return 0;
+    }
+
+    return _eo_typeo(b) == ENUM ? 1 : 0;
+}

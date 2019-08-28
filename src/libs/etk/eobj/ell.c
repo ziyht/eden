@@ -23,7 +23,7 @@
 #include "ell.h"
 #include "eobj_p.h"
 
-#define ELL_VERSION "ell 1.3.0"     // adjust APIs
+#define ELL_VERSION "ell 1.3.1"     // add sort function
 
 #pragma pack(1)
 
@@ -417,10 +417,137 @@ eobj ell_isetS(ell l, int idx, constr str) { return _ell_setRaw(l, idx, *(eval*)
 eobj ell_isetR(ell l, int idx, uint   len) { return _ell_setRaw(l, idx, *(eval*)&len,                   len, _ELL_COE_RAW  ); }
 
 
-inline eobj  ell_first(ell    l) { return _c_head(l)           ? _n_o(_c_head(l))           : 0; }
-inline eobj  ell_last (ell    l) { return _c_tail(l)           ? _n_o(_c_tail(l))           : 0; }
-inline eobj  ell_next (eobj obj) { return _n_next(_eo_dn(obj)) ? _n_o(_n_next(_eo_dn(obj))) : 0; }
-inline eobj  ell_prev (eobj obj) { return _n_prev(_eo_dn(obj)) ? _n_o(_n_prev(_eo_dn(obj))) : 0; }
+inline eobj  ell_first(ell  l) { return (l && _c_head(l))         ? _n_o(_c_head(l))         : 0; }
+inline eobj  ell_last (ell  l) { return (l && _c_tail(l))         ? _n_o(_c_tail(l))         : 0; }
+inline eobj  ell_next (eobj o) { return (o && _n_next(_eo_dn(o))) ? _n_o(_n_next(_eo_dn(o))) : 0; }
+inline eobj  ell_prev (eobj o) { return (o && _n_prev(_eo_dn(o))) ? _n_o(_n_prev(_eo_dn(o))) : 0; }
+
+
+typedef struct __sort_args_s{
+    eobj_cmp_ex_cb  cmp;
+    eval            prvt;
+}__sort_args_t, * __sort_args;
+
+static __always_inline void  __ell_sort(ell l, __sort_args args);
+static __always_inline _elln __merg_sort(_elln a, _elln b, uint len, __sort_args args);
+
+void  ell_sort  (ell l, eobj_cmp_cb    cmp)            { if(l) { __ell_sort(l, (__sort_args)&cmp); } }
+void  ell_sort_r(ell l, eobj_cmp_ex_cb cmp, eval prvt) { if(l) { __ell_sort(l, (__sort_args)&cmp); } E_UNUSED(prvt); }
+
+static void __ell_sort(ell l, __sort_args args)
+{
+    is1_ret((_c_typeco(l) != _ELL_CO_OBJ) || _c_len(l) <= 1, );
+
+    _c_head(l) = __merg_sort(_c_head(l), _c_tail(l), _c_len(l), args);
+    while(_n_next(_c_tail(l))) _c_tail(l) = _n_next(_c_tail(l));
+}
+
+static _elln __merg_sort(_elln a, _elln b, uint len, __sort_args args)
+{
+    if(len == 2)
+    {
+        _n_prev(a) = 0;
+        _n_next(b) = 0;
+
+        if(args->cmp(_n_o(a), _n_o(b), args->prvt) > 0)
+        {
+            _n_next(a) = _n_next(b);
+            _n_prev(b) = _n_prev(a);
+            _n_next(b) = a;
+            _n_prev(a) = b;
+
+            return b;
+        }
+        else
+        {
+            return a;
+        }
+    }
+    else if(len > 2)
+    {
+        _elln mid, midn; uint idx, midi;
+
+        _n_prev(a) = 0;
+        _n_next(b) = 0;
+
+        midi = (len - 1) / 2;   // split to [0, midi] (midi, len - 1]
+        mid  = _n_next(a);
+        idx  = 1;
+
+        while(idx != midi)
+        {
+            mid = _n_next(mid);
+            idx++;
+        }
+        idx++;  // to count
+
+        //! do sort
+        midn = _n_next(mid);
+        a = __merg_sort(a   , mid,       idx, args);
+        b = __merg_sort(midn,   b, len - idx, args);
+
+        //! do merge
+        {
+            _elln_t h; mid = &h;
+
+            _n_next(mid) = a;
+
+            do
+            {
+                while(_n_next(mid))
+                {
+                    if(args->cmp(_n_o(_n_next(mid)), _n_o(b), args->prvt) > 0)
+                    {
+                        _elln next = _n_next(b);
+
+                        _n_next(b)   = _n_next(mid);
+                        _n_prev(b)   = _n_prev(_n_next(mid));
+
+                        _n_prev(_n_next(mid)) = b;
+                        _n_next(mid)          = b;
+
+                        b = next;
+
+                        if(!b)
+                            goto over;
+                    }
+
+                    mid = _n_next(mid);
+                }
+
+                if(args->cmp(_n_o(b), _n_o(mid), args->prvt) > 0)
+                {
+                    _n_next(mid) = b;
+                    _n_prev(b)   = mid;
+
+                    break;
+                }
+                else
+                {
+                    _elln next = _n_next(b);
+
+                    _n_prev(b)   = _n_prev(mid);
+                    _n_next(b)   = mid;
+
+                    _n_next(_n_prev(b)) = b;
+                    _n_prev(mid)        = b;
+
+                    b = next;
+
+                    if(!b)
+                        goto over;
+                }
+            }while(1);
+over:
+            return _n_next(&h);
+        }
+    }
+
+    _n_prev(a) = 0;
+    _n_next(a) = 0;
+
+    return a;
+}
 
 eobj ell_takeH(ell l)           { _elln n;                  is1_ret(!l || !_c_len(l), 0);                               _elist_takeH(l, n);                     return _n_o(n); }
 eobj ell_takeT(ell l)           { _elln n;                  is1_ret(!l || !_c_len(l), 0);                               _elist_takeT(l, n);                     return _n_o(n); }

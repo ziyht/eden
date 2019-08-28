@@ -184,6 +184,20 @@ int    eobj_cmpI(eobj o, i64    val);
 int    eobj_cmpF(eobj o, f64    val);
 int    eobj_cmpS(eobj o, constr str);
 
+/** ---------------------------------------------
+ * eobj sorting cmpare cb
+ *
+ * @note:
+ *
+ *    do not using it directly
+ *
+ */
+
+//int EOBJ_KEYS_ACS(eobj a, eobj b);      // Ascending  via key string in all obj
+//int EOBJ_KEYS_DES(eobj a, eobj b);      // Descending via key string in all obj
+int EOBJ_VALI_ACS(eobj a, eobj b);      // Ascending  via int value in NUM obj
+int EOBJ_VALI_DES(eobj a, eobj b);      // Descending via int value in NUM obj
+
 #ifdef __cplusplus
 }
 #endif

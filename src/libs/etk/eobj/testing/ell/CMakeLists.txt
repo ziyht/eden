@@ -36,6 +36,7 @@ ETestAddTestSet(ell
     CASES   test_basic.c
             test_traverse.c
             test_set.c
+            test_sort.c
     )
 
 ETestAddTestSet(ell

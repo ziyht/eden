@@ -162,6 +162,24 @@ int   ell_swap(ell l, uint idx1, uint idx2);    // todo
 
 /** -----------------------------------------------------
  *
+ *  ell sort
+ *
+ *     The  comparison function must return an integer less than, equal to,
+ * or greater than zero if the first argument is considered to be respectively
+ * less than, equal to, or greater than the second.  If two members compare
+ * as equal, their order in the sorted array is undefined.
+ *
+ */
+
+//! supplied default sort mode
+#define ELL_VALI_ACS    EOBJ_VALI_ACS
+#define ELL_VALI_DES    EOBJ_VALI_DES
+
+void  ell_sort  (ell l, eobj_cmp_cb    cmp);
+void  ell_sort_r(ell l, eobj_cmp_ex_cb cmp, eval prvt);
+
+/** -----------------------------------------------------
+ *
  *  ell take
  *
  *      take one or multi objs from ell
