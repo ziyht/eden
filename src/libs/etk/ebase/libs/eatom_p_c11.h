@@ -23,7 +23,7 @@
 
 #define __eatomic_fence atomic_thread_fence
 
-#define __EATOMIC_GENERATE_ATOMICS(type, short_type,                     \
+#define __EATOMIC_GENERATE_ATOMICS(type, short_type,                    \
     /* unused */ lg_size)                                               \
 typedef _Atomic(type) __eatomic_##short_type##_t;                       \
                                                                         \
@@ -80,20 +80,29 @@ __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
  * Integral types have some special operations available that non-integral ones
  * lack.
  */
-#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                 \
+#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                \
     /* unused */ lg_size)                                               \
-__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)       \
+__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)      \
                                                                         \
 __EATOMIC_INLINE type                                                   \
 __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a,         \
     type val, __eatomic_memory_order_t mo) {                            \
     return atomic_fetch_add_explicit(a, val, mo);                       \
 }                                                                       \
-                                                                        \
+__EATOMIC_INLINE type                                                   \
+__eatomic_add_fetch_##short_type(__eatomic_##short_type##_t *a,         \
+    type val, __eatomic_memory_order_t mo) {                            \
+    return atomic_add_fetch_explicit(a, val, mo);                       \
+}                                                                       \
 __EATOMIC_INLINE type                                                   \
 __eatomic_fetch_sub_##short_type(__eatomic_##short_type##_t *a,         \
     type val, __eatomic_memory_order_t mo) {                            \
     return atomic_fetch_sub_explicit(a, val, mo);                       \
+}                                                                       \
+__EATOMIC_INLINE type                                                   \
+__eatomic_sub_fetch_##short_type(__eatomic_##short_type##_t *a,         \
+    type val, __eatomic_memory_order_t mo) {                            \
+    return atomic_sub_fetch_explicit(a, val, mo);                       \
 }                                                                       \
 __EATOMIC_INLINE type                                                   \
 __eatomic_fetch_and_##short_type(__eatomic_##short_type##_t *a,         \

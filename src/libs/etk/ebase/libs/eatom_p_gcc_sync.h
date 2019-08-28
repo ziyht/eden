@@ -173,9 +173,9 @@ __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
     }                                                                   \
 }
 
-#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                 \
+#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                \
     /* unused */ lg_size)                                               \
-__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)       \
+__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)      \
                                                                         \
 __EATOMIC_INLINE type                                                   \
 __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a, type val,	\
@@ -184,9 +184,21 @@ __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a, type val,	\
 }                                                                       \
                                                                         \
 __EATOMIC_INLINE type                                                   \
+__eatomic_add_fetch_##short_type(__eatomic_##short_type##_t *a, type val,	\
+    __eatomic_memory_order_t mo) {                                      \
+    return __sync_add_and_fetch(&a->repr, val);                         \
+}                                                                       \
+                                                                        \
+__EATOMIC_INLINE type                                                   \
 __eatomic_fetch_sub_##short_type(__eatomic_##short_type##_t *a, type val,	\
     __eatomic_memory_order_t mo) {                                      \
     return __sync_fetch_and_sub(&a->repr, val);                         \
+}                                                                       \
+                                                                        \
+__EATOMIC_INLINE type                                                   \
+__eatomic_sub_fetch_##short_type(__eatomic_##short_type##_t *a, type val,	\
+    __eatomic_memory_order_t mo) {                                      \
+    return __sync_sub_and_fetch(&a->repr, val);                         \
 }                                                                       \
                                                                         \
 __EATOMIC_INLINE type                                                   \

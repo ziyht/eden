@@ -47,7 +47,7 @@ __eatomic_fence(__eatomic_memory_order_t mo) {
     __atomic_thread_fence(__eatomic_enum_to_builtin(mo));
 }
 
-#define __EATOMIC_GENERATE_ATOMICS(type, short_type,                     \
+#define __EATOMIC_GENERATE_ATOMICS(type, short_type,                    \
     /* unused */ lg_size)                                               \
 typedef struct {                                                        \
     type repr;                                                          \
@@ -107,9 +107,9 @@ __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
 }
 
 
-#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                 \
+#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type,                \
     /* unused */ lg_size)                                               \
-__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)       \
+__EATOMIC_GENERATE_ATOMICS(type, short_type, /* unused */ lg_size)      \
                                                                         \
 __EATOMIC_INLINE type                                                   \
 __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a, type val,	\
@@ -119,9 +119,23 @@ __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a, type val,	\
 }                                                                       \
                                                                         \
 __EATOMIC_INLINE type                                                   \
+__eatomic_add_fetch_##short_type(__eatomic_##short_type##_t *a, type val,	\
+    __eatomic_memory_order_t mo) {                                      \
+    return __atomic_add_fetch(&a->repr, val,                            \
+        __eatomic_enum_to_builtin(mo));                                 \
+}                                                                       \
+                                                                        \
+__EATOMIC_INLINE type                                                   \
 __eatomic_fetch_sub_##short_type(__eatomic_##short_type##_t *a, type val,	\
     __eatomic_memory_order_t mo) {                                      \
     return __atomic_fetch_sub(&a->repr, val,                            \
+        __eatomic_enum_to_builtin(mo));                                 \
+}                                                                       \
+                                                                        \
+__EATOMIC_INLINE type                                                   \
+__eatomic_sub_fetch_##short_type(__eatomic_##short_type##_t *a, type val,	\
+    __eatomic_memory_order_t mo) {                                      \
+    return __atomic_sub_fetch(&a->repr, val,                            \
         __eatomic_enum_to_builtin(mo));                                 \
 }                                                                       \
                                                                         \

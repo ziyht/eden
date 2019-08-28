@@ -132,17 +132,23 @@ __eatomic_compare_exchange_strong_##short_type(__eatomic_##short_type##_t *a,	\
 }
 
 
-#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type, lg_size)        \
-__EATOMIC_GENERATE_ATOMICS(type, short_type, lg_size)                    \
+#define __EATOMIC_GENERATE_INT_ATOMICS(type, short_type, lg_size)       \
+__EATOMIC_GENERATE_ATOMICS(type, short_type, lg_size)                   \
                                                                         \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
 __eatomic_fetch_add_##short_type(__eatomic_##short_type##_t *a,         \
     type val, __eatomic_memory_order_t mo) {                            \
     return (type)ATOMIC_INTERLOCKED_NAME(_InterlockedExchangeAdd,       \
         lg_size)(&a->repr, (ATOMIC_INTERLOCKED_REPR(lg_size))val);      \
 }                                                                       \
+__EATOMIC_INLINE type                                                   \
+__eatomic_add_fetch_##short_type(__eatomic_##short_type##_t *a,         \
+    type val, __eatomic_memory_order_t mo) {                            \
+    return (type)ATOMIC_INTERLOCKED_NAME(_InterlockedExchangeAdd,       \
+        lg_size)(&a->repr, (ATOMIC_INTERLOCKED_REPR(lg_size))val) + val;\
+}                                                                       \
                                                                         \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
 __eatomic_fetch_sub_##short_type(__eatomic_##short_type##_t *a,         \
     type val, __eatomic_memory_order_t mo) {                            \
     /*                                                                  \
@@ -154,19 +160,31 @@ __eatomic_fetch_sub_##short_type(__eatomic_##short_type##_t *a,         \
     return __eatomic_fetch_add_##short_type(a, -val, mo);               \
     __pragma(warning(pop))                                              \
 }                                                                       \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
+__eatomic_sub_fetch_##short_type(__eatomic_##short_type##_t *a,         \
+    type val, __eatomic_memory_order_t mo) {                            \
+    /*                                                                  \
+     * MSVC warns on negation of unsigned operands, but for us it       \
+     * gives exactly the right semantics (MAX_TYPE + 1 - operand).      \
+     */                                                                 \
+    __pragma(warning(push))                                             \
+    __pragma(warning(disable: 4146))                                    \
+    return __eatomic_fetch_add_##short_type(a, -val, mo) - val;         \
+    __pragma(warning(pop))                                              \
+}                                                                       \
+__EATOMIC_INLINE type                                                   \
 __eatomic_fetch_and_##short_type(__eatomic_##short_type##_t *a,         \
     type val, __eatomic_memory_order_t mo) {                            \
     return (type)ATOMIC_INTERLOCKED_NAME(_InterlockedAnd, lg_size)(     \
         &a->repr, (ATOMIC_INTERLOCKED_REPR(lg_size))val);               \
 }                                                                       \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
 __eatomic_fetch_or_##short_type(__eatomic_##short_type##_t *a,          \
     type val, __eatomic_memory_order_t mo) {                            \
     return (type)ATOMIC_INTERLOCKED_NAME(_InterlockedOr, lg_size)(      \
         &a->repr, (ATOMIC_INTERLOCKED_REPR(lg_size))val);               \
 }                                                                       \
-__EATOMIC_INLINE type                                                      \
+__EATOMIC_INLINE type                                                   \
 __eatomic_fetch_xor_##short_type(__eatomic_##short_type##_t *a,         \
     type val, __eatomic_memory_order_t mo) {                            \
     return (type)ATOMIC_INTERLOCKED_NAME(_InterlockedXor, lg_size)(     \
