@@ -97,7 +97,7 @@ eobj  ell_addO(ell l, int idx, eobj   obj);        // todo
  * @note:
  *
  *  1. if idx > 0, we search from the beginning
- *  2. if idx < 0, we search from thr end
+ *  2. if idx < 0, we search from the end
  *
  *     [ *  *  *  *  *  *  *  *  *  *]
  *       0  1  2  3  4  5  6  7  8  9
