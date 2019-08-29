@@ -37,6 +37,7 @@ ETestAddTestSet(evec
     CASES   test_basic.c
             #test_logic.c
             test_logic.cpp
+            test_limit.c
 
     DEPENDS #Qt5::Core
 

@@ -27,7 +27,7 @@
 
 #include "evec.h"
 
-#define EVEC_VERSION "evec 1.0.2"       // fix bug and do some optimization
+#define EVEC_VERSION "evec 1.0.3"       // add max cap for evec and adjust new api
 
 #define _EVEC_CHECK 1   // debug using
 
@@ -127,6 +127,7 @@ typedef struct evec_s
     _evev_split_t   s;
 
     //! data
+    u32             max;                // how many item rooms can be alloced
     u32             reserves;           // how many item rooms wanted to reserve
     u8              type;               // etypev
 }evec_t;
@@ -134,11 +135,12 @@ typedef struct evec_s
 #pragma pack()
 
 #define _v_cnt(v)           _split_len((&v->s))
-#define _v_cap(v)           _split_cap((&v->s))
+#define _v_cap(v)           _v_max(v) ? _v_max(v) : _split_cap((&v->s))
+#define _v_max(v)           (v)->max
 #define _v_esize(v)         _split_esize((&v->s))
 #define _v_reserve(v)       (v)->reserves
 #define _v_type(v)          (v)->type
-#define _v_avail(v)         _split_avail((&v->s))
+#define _v_avail(v)         _v_max(v) ? _v_max(v) - _split_len((&v->s)) : _split_avail((&v->s))
 
 #define EVEC_MAX_PREALLOC   (1024 * 1024)       // 1M
 
@@ -195,12 +197,27 @@ static __always_inline void __split_adjust_data(_split s, int appd_rooms, _pos p
 
 static uint __split_expand(_split s, int need_rooms, _pos p)
 {
-    uint new_space; cstr new_base;
+    u64 new_space; cstr new_base;
+
+    if(p->v->max)
+    {
+        //! can not alloc any more
+        if(need_rooms + _split_cap(s) > p->v->max)
+        {
+            return 0;
+        }
+    }
 
     new_space =  _split_esize(s) * (need_rooms + _split_cap(s));
 
     if(new_space < EVEC_MAX_PREALLOC) new_space  = pow2gt(new_space);
     else                              new_space += EVEC_MAX_PREALLOC;
+
+    if(p->v->max)
+    {
+        if(new_space > (p->v->max * _split_esize(s)))
+            new_space = (p->v->max * _split_esize(s));
+    }
 
     new_base = erealloc(_split_base(s), new_space);
 
@@ -422,7 +439,7 @@ static cptr __split_insert(_split s, _pos_t* pos)
     if(overload > 0)
     {
         if(!__split_expand(s, overload, pos))
-            return false;
+            return 0;
     }
 
     out = _split_pptr(pos->s, pos->pos);
@@ -538,9 +555,14 @@ static bool __split_erase_room(_split s, _pos_t* pos)
 //! evec basic
 ///
 
-static evec __evec_new(etypev type, int size);
+static evec __evec_new(etypev type, int size, uint cap);
 
-evec evec_new(etypev type, u16 esize)
+evec evec_new(etypev type)
+{
+    return evec_new2(type, 0, 0);
+}
+
+evec   evec_new2(etypev type, u16 esize, uint cap)
 {
     static const u8 _size_map[] = __EVAR_ITEM_LEN_MAP;
 
@@ -549,22 +571,23 @@ evec evec_new(etypev type, u16 esize)
 
     if(type < E_USER)
     {
-        return __evec_new(type, _size_map[type]);
+        return __evec_new(type, _size_map[type], cap);
     }
 
     if(esize == 0)
         return 0;
 
-    return esize > 0 ? __evec_new(E_USER, esize) : 0;
+    return esize > 0 ? __evec_new(E_USER, esize, cap) : 0;
 }
 
-static evec __evec_new(etypev type, int esize)
+static evec __evec_new(etypev type, int esize, uint cap)
 {
     evec out = ecalloc(1, sizeof(*out));
 
     __split_init(&out->s, 1, esize);
 
-    _v_type  (out) = type;
+    _v_type(out) = type;
+    _v_max (out) = cap;
 
     return out;
 }

@@ -32,7 +32,8 @@ extern "C" {
  *
  *
  */
-evec   evec_new(etypev type, u16 esize);    // esize only have effect when type is E_USER
+evec   evec_new( etypev type);                          // not accept type >= E_USER
+evec   evec_new2(etypev type, u16 esize, uint cap);     // when cap is 0, the internal cap is infinit(max to UINT_MAX), else the internal cap will limit to setted value
 
 evec   evec_dup(evec v);                    // TODO:
 evec   evec_slice(evec v);                  // TODO: get a slice from a evec

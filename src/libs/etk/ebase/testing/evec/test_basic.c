@@ -38,7 +38,7 @@ static int test_gen()
         if(map[i].t == E_NAV)
             break;
 
-        v = evec_new(map[i].t, map[i].size);
+        v = evec_new2(map[i].t, map[i].size, 0);
         eexpect_num(evec_type (v), map[i].t);
         eexpect_num(evec_len  (v), 0);
         eexpect_num(evec_esize(v), map[i].size);
@@ -79,7 +79,7 @@ static int test_appd()
 
     while (itr->t != E_NAV) {
 
-        v = evec_new(itr->t, 0);
+        v = evec_new(itr->t);
 
         for(i = 0; i < 128; i++)
         {
@@ -96,7 +96,7 @@ static int test_appd()
 
     //! i64
     {
-        v = evec_new(E_I64, 0);
+        v = evec_new(E_I64);
 
         for(i = 0; i < 128; i++)
         {
@@ -107,7 +107,7 @@ static int test_appd()
 
     //! f64
     {
-        v = evec_new(E_F64, 0);
+        v = evec_new(E_F64);
 
         for(i = 0; i < 128; i++)
         {
@@ -118,7 +118,7 @@ static int test_appd()
 
     //! str
     {
-        v = evec_new(E_STR, 0);
+        v = evec_new(E_STR);
 
         for(i = 0; i < 128; i++)
         {
@@ -134,7 +134,7 @@ static int test_appd()
 
     //! ptr
     {
-        v = evec_new(E_PTR, 0);
+        v = evec_new(E_PTR);
 
         for(i = 0; i < 128; i++)
         {
@@ -147,7 +147,7 @@ static int test_appd()
 
     //! raw
     {
-        v = evec_new(E_RAW, 0);
+        v = evec_new(E_RAW);
 
         char buf[128] = {0};
 
@@ -165,7 +165,7 @@ static int test_appd()
 
     //! user
     {
-        v = evec_new(E_USER, 4);
+        v = evec_new2(E_USER, 4, 0);
 
         for(i = 0; i < 128; i++)
         {
@@ -185,7 +185,7 @@ static int evec_valI_test()
 {
     int i;
 
-    evec v = evec_new(E_I64, 0);
+    evec v = evec_new(E_I64);
 
     for(i = 0; i < 100; i++)
     {
@@ -217,7 +217,7 @@ static int evec_valS_test()
 
     ll2str(2, buf);
 
-    evec v = evec_new(E_STR, 0);
+    evec v = evec_new(E_STR);
 
     for(i = 0; i < 100; i++)
     {

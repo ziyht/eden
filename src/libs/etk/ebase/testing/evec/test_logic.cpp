@@ -10,7 +10,7 @@ static int random_add_evec(int scale)
 {
     int i, id;
 
-    evec v = evec_new(E_I64, 0);
+    evec v = evec_new(E_I64);
 
     srand(0);
 

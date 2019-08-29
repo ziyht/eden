@@ -15,7 +15,7 @@
 
 void evec_val_S_bench_init(ebench_p b)
 {
-    b->bprvt.p = evec_new(E_STR, 0);
+    b->bprvt.p = evec_new(E_STR);
 }
 
 void evec_val_S_bench_add(ebench_p b)
@@ -53,7 +53,7 @@ void evec_val_S_bench_free(ebench_p b)
 
 void evec_val_i64_bench_init(ebench_p b)
 {
-    b->bprvt.p = evec_new(E_I64, 0);
+    b->bprvt.p = evec_new(E_I64);
 }
 
 void evec_val_i64_bench_add(ebench_p b)
