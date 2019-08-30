@@ -96,6 +96,9 @@ static __always_inline int __pthread_cond_timedwait(econd_t* co, emutex_t* mu, i
 {
     struct timespec ts;
 
+    if(timeout == -1)
+        return econd_wait(*co, *mu);
+
 #if defined(__APPLE__) && defined(__MACH__)
     ts.tv_sec  = timeout / ((uint64_t) 1e9);
     ts.tv_nsec = timeout % ((uint64_t) 1e9);
