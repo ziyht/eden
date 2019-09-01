@@ -49,6 +49,7 @@ typedef pthread_barrier_t       ebarrier_t;
 
 #define ethread_init(t, cb, d)  pthread_create(&(t), NULL, (cb), (d))
 #define ethread_join(t)         pthread_join((t), NULL)
+#define ethread_join_ex(t, p)   pthread_join((t), &(p))
 #define ethread_detach(t)       pthread_detach((t))
 #define ethread_quit(t)         pthread_cancel(t)
 #define ethread_self()          pthread_self()
