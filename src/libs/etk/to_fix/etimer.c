@@ -399,7 +399,7 @@ static void* __inner_loop(void* arg)
             continue;
         }
         else
-            echan_tryRecvSig(loop->sigs, 1000);
+            echan_tryRecvSigs(loop->sigs, 1000);
 
 
         now    = e_nowms();
@@ -419,7 +419,7 @@ static void* __inner_loop(void* arg)
             syscall(__NR_epoll_wait, loop->epoll_fd, events, ARRAY_SIZE(events), loop->wait_ms);
 #else
             //cond_twait(loop->co_wait, loop->mu_wait, loop->wait_ms);
-            echan_timeRecvSig(loop->sigs, 1, (int)loop->wait_ms);
+            echan_timeRecvSigs(loop->sigs, 1, (int)loop->wait_ms);
 #endif
             llog("loop: wait %"PRIi64" ms actrually", eutils_nowms() - now);
 
@@ -480,7 +480,7 @@ etloop etloop_new(int maxthread)
     emutex_init(loop->mu);
 //    emutex_init(loop->mu_wait);
 //    cond_init (loop->co_wait);
-    loop->sigs = echan_new(ECHAN_SIGS, UINT_MAX);
+    loop->sigs = echan_new(E_SIG, UINT_MAX);
 
     if(!loop->tp || !loop->tl || ethread_init(loop->tl_th, __inner_loop, loop))
         goto err_ret;

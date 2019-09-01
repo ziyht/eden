@@ -139,7 +139,7 @@ static ert __ert_new(int max_thread_num)
 
     tp->status        = _INITIALING;
 
-    tp->tasks         = echan_new(ECHAN_LIST, INT_MAX);
+    tp->tasks         = echan_new(E_PTR, INT_MAX);
     tp->tasks_tags    = ejson_new(EOBJ, EVAL_0);
     tp->tasks_cache   = ell_new();
 
@@ -249,7 +249,7 @@ static inline int __ert_task_add(ert tp, constr _tag, ert_cb oprt, ert_cb after_
 
     if(*tag) strncpy(t->tag, tag, TAG_LEN);
 
-    if(!echan_sendO(tp->tasks, (eobj)t))
+    if(!echan_sendP(tp->tasks, t))
     {
         llog("[threadpool]: add new task [%s] faild, %d tasks now", (tag && *tag) ? tag : "", echan_size(tp->tasks));
         ell_freeO(0, (eobj)t);
@@ -286,7 +286,7 @@ static void* __task_thread(void* _th)
 
     __ert_thrd_idle_PP(tp);
 
-    while((t = (TASK)echan_recvO(tp->tasks)))
+    while((t = (TASK)echan_recvP(tp->tasks)))
     {
         __ert_thrd_idle_MM(tp);
 
@@ -407,7 +407,7 @@ static inline void __ert_releasing(ert tp)
 
     if(tp->quit_join_ths)
     {
-        tp->quit_sigs = echan_new(ECHAN_SIGS, INT_MAX);
+        tp->quit_sigs = echan_new(E_SIG, INT_MAX);
     }
 
     echan_close(tp->tasks);     // close the chan, so the task thread will not recieve any tasks and quit automaticly
@@ -415,7 +415,7 @@ static inline void __ert_releasing(ert tp)
     if(tp->quit_join_ths)
     {
         // -- wait all the threads to quit
-        echan_recvSig(tp->quit_sigs, 1);
+        echan_recvSig(tp->quit_sigs);
         echan_free(tp->quit_sigs);
 
         __ert_task_release(tp);

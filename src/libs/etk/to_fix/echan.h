@@ -43,6 +43,9 @@ typedef struct echan_s* echan;
 /// msg successfully.
 ///
 
+#define E_SIG   E_NAV
+#define E_ALL   E_UNKOWN
+
 echan echan_new (etypev type, uint cap);     // create a echan
 void  echan_free(echan  chan);               // close a echan and release all the resources
 
@@ -74,15 +77,28 @@ uint   echan_cap  (echan chan);              // Returns the cap of elements in c
 ///     1 if succeed.
 ///
 
-bool  echan_sendI(echan chan, i64    val);
-bool  echan_sendF(echan chan, f64    val);
-bool  echan_sendS(echan chan, constr str);
-bool  echan_sendP(echan chan, conptr ptr);
-bool  echan_sendV(echan chan, evar   var);
+#define EVAR_SIG(_cnt)            (evar){.type = E_SIG, .cnt = _cnt }
 
-bool  echan_sendSig(echan chan, uint sigs);
+bool  echan_sendI  (echan chan, i64    val);
+bool  echan_sendF  (echan chan, f64    val);
+bool  echan_sendS  (echan chan, constr str);
+bool  echan_sendP  (echan chan, conptr ptr);
+bool  echan_sendV  (echan chan, evar   var);
+bool  echan_sendSig(echan chan, uint  sigs);
 
+bool  echan_trySendI  (echan chan, i64    val);
+bool  echan_trySendF  (echan chan, f64    val);
+bool  echan_trySendS  (echan chan, constr str);
+bool  echan_trySendP  (echan chan, conptr ptr);
+bool  echan_trySendV  (echan chan, evar   var);
+bool  echan_trySendSig(echan chan, uint sigs);
 
+bool  echan_timeSendI  (echan chan, i64    val, int timeout);
+bool  echan_timeSendF  (echan chan, f64    val, int timeout);
+bool  echan_timeSendS  (echan chan, constr str, int timeout);
+bool  echan_timeSendP  (echan chan, conptr ptr, int timeout);
+bool  echan_timeSendV  (echan chan, evar   var, int timeout);
+bool  echan_timeSendSig(echan chan, uint  sigs, int timeout);
 
 /// ---------------------- recver -------------------------
 ///
@@ -103,21 +119,51 @@ bool  echan_sendSig(echan chan, uint sigs);
 ///     [real value] or [ptr of eobj]
 ///
 
-//eobj echan_recvB(echan chan);   // recving a bin    data, using echan_freeO() to release after using it
-i64  echan_recvI(echan chan);   // recving a int    data
-f64  echan_recvF(echan chan);   // recving a double data
-estr echan_recvS(echan chan);   // recving a str    data, using echan_freeO() to release after using it
-cptr echan_recvP(echan chan);   // recving a ptr    data
+#define EVAR_ALL                  (evar){.type = E_ALL }
 
-int  echan_recvSig(echan chan, uint sigs);
-eval echan_recvALL(echan chan); // recving all objs or sigs, using .p to get the elist of all objs; using .u to get the recved all sigs
+i64  echan_recvI  (echan chan);     // recving a i64 data
+f64  echan_recvF  (echan chan);     // recving a f64 data
+estr echan_recvS  (echan chan);     // recving a str data
+cptr echan_recvP  (echan chan);     // recving a ptr data
+evar echan_recvV  (echan chan);     // recving a     data
+uint echan_recvSig(echan chan);     // recving a     sig , returns 0 if failed, else returns 1
 
+i64  echan_tryRecvI  (echan chan);
+f64  echan_tryRecvF  (echan chan);
+estr echan_tryRecvS  (echan chan);
+cptr echan_tryRecvP  (echan chan);
+evar echan_tryRecvV  (echan chan);
+uint echan_tryRecvSig(echan chan);
 
-int  echan_tryRecvSig(echan chan, uint sigs);
-eval echan_tryRecvAll(echan chan);
+i64  echan_timeRecvI  (echan chan, int timeout);
+f64  echan_timeRecvF  (echan chan, int timeout);
+estr echan_timeRecvS  (echan chan, int timeout);
+cptr echan_timeRecvP  (echan chan, int timeout);
+evar echan_timeRecvV  (echan chan, int timeout);
+uint echan_timeRecvSig(echan chan, int timeout);
 
-int  echan_timeRecvSig(echan chan, uint sigs, int timeout);
-eval echan_timeRecvAll(echan chan,            int timeout);  // todo
+evar echan_recvIs  (echan chan, uint cnt);   // recving a series of i64 data
+evar echan_recvFs  (echan chan, uint cnt);   // recving a series of f64 data
+evar echan_recvSs  (echan chan, uint cnt);   // recving a series of str data
+evar echan_recvPs  (echan chan, uint cnt);   // recving a series of ptr data
+evar echan_recvVs  (echan chan, uint cnt);   // recving a series of     data
+uint echan_recvSigs(echan chan, uint sigs);  // recving   needed sigs
+
+evar echan_tryRecvIs  (echan chan, uint cnt);
+evar echan_tryRecvFs  (echan chan, uint cnt);
+evar echan_tryRecvSs  (echan chan, uint cnt);
+evar echan_tryRecvPs  (echan chan, uint cnt);
+evar echan_tryRecvVs  (echan chan, uint cnt);
+uint echan_tryRecvSigs(echan chan, uint cnt);
+
+evar echan_timeRecvIs  (echan chan, uint cnt, int timeout);
+evar echan_timeRecvFs  (echan chan, uint cnt, int timeout);
+evar echan_timeRecvSs  (echan chan, uint cnt, int timeout);
+evar echan_timeRecvPs  (echan chan, uint cnt, int timeout);
+evar echan_timeRecvVs  (echan chan, uint cnt, int timeout);
+uint echan_timeRecvSigs(echan chan, uint cnt, int timeout);
+
+//! todo: recv all
 
 int echan_select(echan recv_chans[], int recv_count, cptr* recv_out,
     echan send_chans[], int send_count, cptr send_msgs[]);

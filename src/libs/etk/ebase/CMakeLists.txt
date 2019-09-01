@@ -86,5 +86,6 @@ ETestAdd(testing/estr   ON)
 ETestAdd(testing/evar   ON)
 ETestAdd(testing/evec   ON)
 ETestAdd(testing/eatom  ON)
+ETestAdd(testing/echan  ON)
 
 ETestAdd(tutorial/estr  ON)
