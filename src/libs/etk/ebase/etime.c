@@ -245,6 +245,11 @@ i64  e_tickus() { return __hrtick_ns(_CLOCK_PRECISE) / 1000      ; }
 i64  e_tickms() { return __hrtick_ns(_CLOCK_FAST   ) / 1000000   ; }
 i64  e_ticks () { return __hrtick_ns(_CLOCK_FAST   ) / 1000000000; }
 
+i64  e_ticker_ns(i64* tick) { i64 old = *tick; *tick = e_tickns(); return *tick - old;  }
+i64  e_ticker_us(i64* tick) { i64 old = *tick; *tick = e_tickus(); return *tick - old;  }
+i64  e_ticker_ms(i64* tick) { i64 old = *tick; *tick = e_tickms(); return *tick - old;  }
+i64  e_ticker_s (i64* tick) { i64 old = *tick; *tick = e_ticks (); return *tick - old;  }
+
 static inline cstr __secstr(cstr desc, int dlen, i64 ns)
 {
     struct tm time; time_t sec;

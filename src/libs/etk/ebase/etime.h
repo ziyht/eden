@@ -40,6 +40,11 @@ i64  e_tickus();
 i64  e_tickms();
 i64  e_ticks ();
 
+i64  e_ticker_ns(i64* tick);
+i64  e_ticker_us(i64* tick);
+i64  e_ticker_ms(i64* tick);
+i64  e_ticker_s (i64* tick);
+
 cstr e_nowstr(cstr desc, int dlen);             // YYYYMMDDhhmmss.[9]ns  20130603150702.352432467
 cstr e_secstr(cstr desc, int dlen, time_t sec); // YYYYMMDDhhmmss
 
