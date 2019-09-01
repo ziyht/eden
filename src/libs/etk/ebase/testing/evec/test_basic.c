@@ -129,6 +129,12 @@ static int test_appd()
 
             eexpect_str( s, __buf);
         }
+
+        for(i = 0; i < 128; i++)
+        {
+            eexpect_str(evec_i(v, i).s, evec_i(v, i - 128).s);
+        }
+
         eexpect_num( evec_free(v), i );
     }
 
@@ -142,6 +148,12 @@ static int test_appd()
 
             eexpect_ptr( evec_i(v, i).p, &__buf[i]);
         }
+
+        for(i = 0; i < 128; i++)
+        {
+            eexpect_ptr(evec_i(v, i).p, evec_i(v, i - 128).p);
+        }
+
         eexpect_num( evec_free(v), i );
     }
 
@@ -160,6 +172,12 @@ static int test_appd()
 
             eexpect_raw( r, buf, i );
         }
+
+        for(i = 0; i < 128; i++)
+        {
+            eexpect_raw(evec_i(v, i).s, evec_i(v, i - 128).s, i);
+        }
+
         eexpect_num( evec_free(v), i );
     }
 
@@ -175,6 +193,12 @@ static int test_appd()
 
             eexpect_raw( s, __buf, ll2str(i, __buf));
         }
+
+        for(i = 0; i < 128; i++)
+        {
+            eexpect_raw(evec_i(v, i).p, evec_i(v, i - 128).p, ll2str(i, __buf));
+        }
+
         eexpect_num( evec_free(v), i );
     }
 

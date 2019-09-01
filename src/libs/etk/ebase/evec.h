@@ -108,13 +108,13 @@ bool evec_addR(evec v, uint i, uint   len);
 eval evec_first(evec v);                // Retruns the val of first    element, returns EVAL_0 if not exist
 eval evec_last (evec v);                // Retruns the val of last     element, returns EVAL_0 if not exist
 
-eval evec_i    (evec v, uint idx);      // Retruns the val of specific element, returns EVAL_0 if not exist
-cptr evec_iPtr (evec v, uint idx);      // Retruns the ptr of specific element, returns 0 if not exist
-i64  evec_iValI(evec v, uint idx);      // Retruns the val of specific element, returns 0 if not exist, E_I64, E_U64, E_F64 is ok
-f64  evec_iValF(evec v, uint idx);      // Retruns the val of specific element, returns 0 if not exist, E_I64, E_U64, E_F64 is ok
-cstr evec_iValS(evec v, uint idx);      // Retruns the ptr of specific element, returns 0 if not exist, only E_STR
-cptr evec_iValP(evec v, uint idx);      // Retruns the ptr of specific element, returns 0 if not exist, only E_PTR
-cptr evec_iValR(evec v, uint idx);      // Retruns the ptr of specific element, returns 0 if not exist, only E_RAW
+eval evec_i    (evec v, i64 idx);       // Retruns the val of specific element, returns EVAL_0 if not exist
+cptr evec_iPtr (evec v, i64 idx);       // Retruns the ptr of specific element, returns 0 if not exist
+i64  evec_iValI(evec v, i64 idx);       // Retruns the val of specific element, returns 0 if not exist, E_I64, E_U64, E_F64 is ok
+f64  evec_iValF(evec v, i64 idx);       // Retruns the val of specific element, returns 0 if not exist, E_I64, E_U64, E_F64 is ok
+cstr evec_iValS(evec v, i64 idx);       // Retruns the ptr of specific element, returns 0 if not exist, only E_STR
+cptr evec_iValP(evec v, i64 idx);       // Retruns the ptr of specific element, returns 0 if not exist, only E_PTR
+cptr evec_iValR(evec v, i64 idx);       // Retruns the ptr of specific element, returns 0 if not exist, only E_RAW
 
 
 
@@ -125,7 +125,11 @@ cptr evec_iValR(evec v, uint idx);      // Retruns the ptr of specific element, 
 
 evar evec_takeH(evec v);                // Takes the first    element
 evar evec_takeT(evec v);                // Takes the last     element
-evar evec_takeI(evec v, uint idx);      // Takes the specific element
+evar evec_takeI(evec v, i64 idx);      // Takes the specific element
+
+evar evec_takeHs(evec v, uint cnt);             // Takes the element if [0  , cnt), if not enough, takes all of it
+evar evec_takeTs(evec v, uint cnt);             // Takes the element if [0  , cnt), if not enough, takes all of it
+evar evec_takeIs(evec v, i64  idx, uint cnt);   // Takes the element if [idx, cnt),
 
 //! TODO
 evar evec_takeOne(evec v, evar var);    // Takes the first matched element

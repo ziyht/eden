@@ -27,7 +27,7 @@
 
 #include "evec.h"
 
-#define EVEC_VERSION "evec 1.0.3"       // add max cap for evec and adjust new api
+#define EVEC_VERSION "evec 1.0.4"       // fix evec_take APIs
 
 #define _EVEC_CHECK 1   // debug using
 
@@ -72,6 +72,7 @@ typedef struct _pos_s
 #define _split_rpos(sp)         (sp)->rpos
 #define _split_cap(sp)          (sp)->cap
 #define _split_base(sp)         (sp)->base.s
+#define _split_cutted(sp)       (_split_rpos(sp) >  _split_cap(sp))
 
 #define _split_len(sp)          (_split_rpos(sp) - _split_fpos(sp))
 #define _split_avail(sp)        (_split_cap(sp) - (_split_len(sp)))
@@ -80,6 +81,7 @@ typedef struct _pos_s
 
 #define _split_ppos(sp, p)      ((p) % _split_cap(sp))                                       // pos -> real pos
 #define _split_pptr(sp, p)      (_split_base(sp) + _split_ppos(sp, p) * _split_esize(sp))    // pos -> real ptr
+#define _split_pval(sp, p)      (*(eval*)_split_pptr(sp, p))
 
 #define _split_ipos(sp, i)      _split_ppos(sp, _split_fpos(sp) + (i))                       // idx -> real pos
 #define _split_iptr(sp, i)      _split_pptr(sp, _split_fpos(sp) + (i))                       // idx -> real ptr
@@ -228,7 +230,7 @@ static uint __split_expand(_split s, int need_rooms, _pos p)
     _split_base(s) = new_base;
 
     need_rooms = new_space / _split_esize(s) - _split_cap (s);    // record appd rooms
-    if( _split_rpos(s) >  _split_cap (s))
+    if( _split_rpos(s) >  _split_cap (s) )
         __split_adjust_data(s, need_rooms, p);
 
     _split_cap (s) = new_space / _split_esize(s);
@@ -449,7 +451,29 @@ static cptr __split_insert(_split s, _pos_t* pos)
     return out;
 }
 
-static bool __split_erase_room(_split s, _pos_t* pos)
+static void __split_copy_rooms(_split s, _pos_t* pos, cstr dest)
+{
+    uint needcopy = (_split_rpos(s) - pos->pos);
+
+    if(needcopy > pos->cnt) needcopy  = pos->cnt;
+
+    needcopy *= _split_esize(s);
+
+    if(pos->pos + pos->cnt <= _split_cap(s) || pos->pos >= _split_cap(s))
+    {
+        memcpy(dest, _split_pptr(s, pos->pos) , needcopy);
+    }
+    else
+    {
+        uint firstcopy = (_split_cap(s) - pos->pos) * _split_esize(s);
+
+        memcpy(dest, _split_pptr(s, pos->pos) , firstcopy);
+
+        memcpy(dest + firstcopy, _split_base(s), needcopy - firstcopy);
+    }
+}
+
+static bool __split_free_rooms(_split s, _pos_t* pos)
 {
     uint can_erase;
 
@@ -457,6 +481,22 @@ static bool __split_erase_room(_split s, _pos_t* pos)
 
     if(pos->cnt > can_erase)
         pos->cnt = can_erase;
+
+    //! free from head
+    if(pos->pos == _split_fpos(s))
+    {
+        __split_fpos_incr(s, pos->cnt);
+
+        return true;
+    }
+
+    //! free end to tail
+    if(pos->pos + pos->cnt == _split_rpos(s))
+    {
+        __split_rpos_decr(s, pos->cnt);
+
+        return true;
+    }
 
     {
         uint move_f = pos->pos  - _split_fpos(s);
@@ -488,15 +528,28 @@ static bool __split_erase_room(_split s, _pos_t* pos)
 
             if(ffto < _split_cap(s) && frto > _split_cap(s))
             {
+                /**
+                 *
+                 *  |00******...****|
+                 *
+                 */
+
+                int first = frto - _split_cap(s);
+
                 //! step 1:
-                memcpy(_split_base(s), _split_fptr(s) + (pos->pos - (frto - _split_cap(s))) * _split_esize(s), (frto - _split_cap(s)) * _split_esize(s));
+                memcpy(_split_base(s), _split_pptr(s, pos->pos - first), _split_msize(s, first));
 
                 //! step 2:
-                memmove(_split_pptr(s, ffto), _split_fptr(s),  (pos->cnt - frto - _split_cap(s)) * _split_esize(s));
+                memmove(_split_pptr(s, ffto), _split_fptr(s), _split_msize(s, move_f - first));
             }
             else
             {
-                memmove(_split_fptr(s) + _split_esize(s) * pos->cnt, _split_fptr(s), _split_esize(s) * pos->cnt);
+                /**
+                 *
+                 *  |.***000****...|
+                 */
+
+                memmove(_split_pptr(s, ffto), _split_fptr(s), _split_msize(s, move_f) );
             }
 
             __split_fpos_incr(s, pos->cnt);
@@ -539,7 +592,7 @@ static bool __split_erase_room(_split s, _pos_t* pos)
             }
             else
             {
-                memmove(_split_pptr(s, rfto), _split_pptr(s, pos->pos + pos->cnt), _split_msize(s, pos->cnt));
+                memmove(_split_pptr(s, rfto), _split_pptr(s, pos->pos + pos->cnt), _split_msize(s, move_r));
             }
 
             __split_rpos_decr(s, pos->cnt);
@@ -934,20 +987,22 @@ do                                                                              
 eval evec_first(evec v) { is1_ret(!v, EVAL_0);                           __evec_i_ret_eval(v,   0); return EVAL_0; }
 eval evec_last (evec v) { is1_ret(!v, EVAL_0); uint idx = _v_cnt(v) - 1; __evec_i_ret_eval(v, idx); return EVAL_0; }
 
-eval evec_i    (evec v, uint idx)
+eval evec_i    (evec v, i64 idx)
 {
     is1_ret(!v || idx >= _v_cnt(v), EVAL_0);
 
-    cstr s = _split_ival(&v->s, idx).r;
+    if(idx < 0) idx += _v_cnt(v); if(idx < 0) return EVAL_0;
 
     __evec_i_ret_eval(v, idx);
 
     return EVAL_0;
 }
 
-cptr evec_iPtr (evec v, uint idx)
+cptr evec_iPtr (evec v, i64 idx)
 {
     is1_ret(!v || idx >= _v_cnt(v), 0);
+
+    if(idx < 0) idx += _v_cnt(v); if(idx < 0) return 0;
 
     switch (_v_type(v))
     {
@@ -960,11 +1015,11 @@ cptr evec_iPtr (evec v, uint idx)
 }
 
 
-i64  evec_iValI(evec v, uint idx){ is1_ret(!v || idx >= _v_cnt(v), 0); return (_v_type(v) == E_I64) ? _split_ival(&v->s, idx).i64 : (_v_type(v) == E_F64) ? (i64)_split_ival(&v->s, idx).f64 : 0; }
-f64  evec_iValF(evec v, uint idx){ is1_ret(!v || idx >= _v_cnt(v), 0); return (_v_type(v) == E_F64) ? _split_ival(&v->s, idx).f64 : (_v_type(v) == E_I64) ? (f64)_split_ival(&v->s, idx).i64 : 0; }
-cstr evec_iValS(evec v, uint idx){ is1_ret(!v || idx >= _v_cnt(v), 0); return (_v_type(v) == E_STR) ? _split_ival(&v->s, idx).s : 0; }
-cptr evec_iValP(evec v, uint idx){ is1_ret(!v || idx >= _v_cnt(v), 0); return (_v_type(v) == E_PTR) ? _split_ival(&v->s, idx).p : 0; }
-cptr evec_iValR(evec v, uint idx){ is1_ret(!v || idx >= _v_cnt(v), 0); return (_v_type(v) == E_RAW) ? _split_ival(&v->s, idx).s : 0; }
+i64  evec_iValI(evec v, i64 idx){ is1_ret(!v || idx >= _v_cnt(v), 0); if(idx < 0) idx += _v_cnt(v); if(idx < 0) return 0; return (_v_type(v) == E_I64) ? _split_ival(&v->s, idx).i64 : (_v_type(v) == E_F64) ? (i64)_split_ival(&v->s, idx).f64 : 0; }
+f64  evec_iValF(evec v, i64 idx){ is1_ret(!v || idx >= _v_cnt(v), 0); if(idx < 0) idx += _v_cnt(v); if(idx < 0) return 0; return (_v_type(v) == E_F64) ? _split_ival(&v->s, idx).f64 : (_v_type(v) == E_I64) ? (f64)_split_ival(&v->s, idx).i64 : 0; }
+cstr evec_iValS(evec v, i64 idx){ is1_ret(!v || idx >= _v_cnt(v), 0); if(idx < 0) idx += _v_cnt(v); if(idx < 0) return 0; return (_v_type(v) == E_STR) ? _split_ival(&v->s, idx).s : 0; }
+cptr evec_iValP(evec v, i64 idx){ is1_ret(!v || idx >= _v_cnt(v), 0); if(idx < 0) idx += _v_cnt(v); if(idx < 0) return 0; return (_v_type(v) == E_PTR) ? _split_ival(&v->s, idx).p : 0; }
+cptr evec_iValR(evec v, i64 idx){ is1_ret(!v || idx >= _v_cnt(v), 0); if(idx < 0) idx += _v_cnt(v); if(idx < 0) return 0; return (_v_type(v) == E_RAW) ? _split_ival(&v->s, idx).s : 0; }
 
 /// -----------------------------------------------------
 //! evec take
@@ -972,42 +1027,59 @@ cptr evec_iValR(evec v, uint idx){ is1_ret(!v || idx >= _v_cnt(v), 0); return (_
 ///
 
 /**
- * @brief __evec_take_var
+ * @brief __evec_take_vars
  *
  *  take a element from vec and returns the value
  *
  * @note:
- *  need be sure of 0 <= idx < _v_cnt(v) before call it
+ *
+ *     [ *  *  *  *  *  *  *  *  *  *]
+ *       0  1  2  3  4  5  6  7  8  9
+ *     -10 -9 -8 -7 -6 -5 -4 -3 -2 -1    idx = idx + ${len}
  *
  */
 
-static evar __evec_take_var(evec v, uint idx, uint cnt)
+static evar __evec_take_vars(evec v, i64 idx, uint cnt)
 {
     _pos_t p; evar var;
+
+    is0_ret(_v_cnt(v), EVAR_NAV);
+
+    if(idx < 0) idx += _v_cnt(v);
+    if(idx < 0) idx = 0;
 
     if(_v_cnt(v) - idx < cnt )
         cnt = _v_cnt(v) - idx;
 
     //! find it
-    p.pos = _split_fpos(&v->s) + idx;
+    p.v   = v;
+    p.s   = &v->s;
+    p.pos = _split_fpos(p.s) + idx;
+    p.cnt = cnt;
 
-    //! take it from split
-    {
-        p.s   = &v->s;
-        p.v   = v;
-        p.cnt = 1;
-        __split_erase_room(p.s, &p);
-    }
-
-    //! set val to var to return
+    //! copy vals to var to return
     {
         var = evar_gen(_v_type(v), cnt, _v_esize(v));
-        evar_iSet(var, 0, _split_pptr(p.s, p.pos), _v_esize(v));
+
+        if(cnt == 1)
+            evar_iSet(var, 0, _split_pptr(p.s, p.pos), _v_esize(v));
+        else
+            __split_copy_rooms(&v->s, &p, evar_iPtr(var, 0));
     }
+
+    //! free it from split
+    __split_free_rooms(p.s, &p);
 
     return var;
 }
 
-evar evec_takeH(evec v)             { is1_ret(!v ||       !_v_cnt(v), EVAR_NAV); return __evec_take_var(v,             0, 1); }
-evar evec_takeT(evec v)             { is1_ret(!v ||       !_v_cnt(v), EVAR_NAV); return __evec_take_var(v, _v_cnt(v) - 1, 1); }
-evar evec_takeI(evec v, uint idx)   { is1_ret(!v || idx >= _v_cnt(v), EVAR_NAV); return __evec_take_var(v,           idx, 1); }
+#define MIN(a, b) ((a) > (b) ? (b) : (a))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+evar evec_takeH(evec v)             { is1_ret(!v  , EVAR_NAV); return __evec_take_vars(v,             0,   1); }
+evar evec_takeT(evec v)             { is1_ret(!v  , EVAR_NAV); return __evec_take_vars(v, _v_cnt(v) - 1,   1); }
+evar evec_takeI(evec v, i64 idx)    { is1_ret(!v  , EVAR_NAV); return __evec_take_vars(v,           idx,   1); }
+
+evar evec_takeHs(evec v, uint cnt)           { is1_ret(!v , EVAR_NAV);                                      return __evec_take_vars(v,               0, MIN(cnt, _v_cnt(v)) ); }
+evar evec_takeTs(evec v, uint cnt)           { is1_ret(!v , EVAR_NAV); if(cnt > _v_cnt(v)) cnt = _v_cnt(v); return __evec_take_vars(v, _v_cnt(v) - cnt, cnt                 ); }
+evar evec_takeIs(evec v, i64  idx, uint cnt) { is1_ret(!v , EVAR_NAV);                                      return __evec_take_vars(v,             idx, MIN(cnt, _v_cnt(v)) ); }
