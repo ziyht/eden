@@ -51,6 +51,7 @@ typedef enum etypev_s{
 
     E_USER= 14,         // E_USER
 
+    E_UNKOWN = 0xff,
 }etypev;
 
 #define __EVAR_ITEM_LEN_MAP {0,  1, 2, 4, 8,  1, 2, 4, 8,  4, 8,  8, 8, 8}  // up to
@@ -81,7 +82,9 @@ typedef struct evar_s{
  *
  */
 
-#define EVAR_NAV            (evar){.type = E_NAV, .v = EVAL_ZORE }
+#define __EVAR_MK(t, s, c, v)   (evar){0, t, s, c, v }
+
+#define EVAR_NAV            __EVAR_MK(E_NAV, 0, 0, EVAL_0)
 
 #define EVAR_I8( v)         (evar){0, E_I8 , 1, 1, EVAL_I8 (v)}
 #define EVAR_I16(v)         (evar){0, E_I16, 2, 1, EVAL_I16(v)}
@@ -117,8 +120,9 @@ uint   evar_esize(evar v);      // Returns the size of element
 u64    evar_space(evar v);      // Returns the alloc size of base slots,  cnt * esize
 etypev evar_type (evar v);      // Returns the whole type field in evar
 constr evar_typeS(evar v);      // Returns type of evar as String
+bool   evar_isPtr(evar v);
 
-#define evar_free(v)         evarp_free(&v)    //  Returns the cnt of element before free
+#define evar_free(v)         __evarp_free(&(v))    //  Returns the cnt of element before free
 
 /** -----------------------------------------------------
  *
@@ -131,13 +135,14 @@ constr evar_typeS(evar v);      // Returns type of evar as String
  *  3. for E_STR, E_RAW and E_USER, we make a copy
  *
  */
-bool evar_iSet (evar v, uint idx, conptr  in, int ilen);
-bool evar_iSetV(evar v, uint idx, evar   var);      // using EVAR_USER(ptr, inlen) to pass in data when type is E_USER
-bool evar_iSetI(evar v, uint idx, i64    val);
-bool evar_iSetF(evar v, uint idx, f64    val);
-bool evar_iSetS(evar v, uint idx, constr str);
-bool evar_iSetP(evar v, uint idx, conptr ptr);
-bool evar_iSetR(evar v, uint idx, evar   raw);      // using EVAR_RAW(ptr, inlen) to pass in data
+
+#define evar_iSet( v, idx, in, inlen)  __evarp_iSet( &(v), idx, in, inlen)
+#define evar_iSetI(v, idx, val)        __evarp_iSetI(&(v), idx, val)
+#define evar_iSetF(v, idx, val)        __evarp_iSetF(&(v), idx, val)
+#define evar_iSetS(v, idx, str)        __evarp_iSetS(&(v), idx, str)
+#define evar_iSetP(v, idx, ptr)        __evarp_iSetP(&(v), idx, ptr)
+#define evar_iSetR(v, idx, var)        __evarp_iSetR(&(v), idx, var)
+#define evar_iSetV(v, idx, var)        __evarp_iSetV(&(v), idx, var)
 
 /** -----------------------------------------------------
  *
@@ -158,7 +163,6 @@ uint evar_lenR(evar v);             // Returns the len        of item if type ma
 
 evar evar_i    (evar v, uint idx);      // Returns the specific item as evar, if type >= E_USER, using evar.v.p to get val
 eval evar_iVal (evar v, uint idx);      // Returns the specific item as eval, using the field in eval to get value
-cptr evar_iPtr (evar v, uint idx);      // Returns the addr of specific item for whatever the type is, not support E_I8 to E_PTR of evar made by macros
 i64  evar_iValI(evar v, uint idx);      // Returns the value i64  of item if exist and type matchs E_I64 or E_F64
 f64  evar_iValF(evar v, uint idx);      // Returns the value f64  of item if exist and type matchs E_F64 or E_I64
 cstr evar_iValS(evar v, uint idx);      // Returns the cstr  hold by item if exist and type matchs E_STR, actually is a estr
@@ -168,7 +172,7 @@ cptr evar_iValR(evar v, uint idx);      // Returns the rawp  hold by item if exi
 uint evar_iLenS(evar v, uint idx);      // Returns the len        of item if exist and type matchs E_STR
 uint evar_iLenR(evar v, uint idx);      // Returns the len        of item if exist and type matchs E_RAW
 
-#define evar_iPtr2(v, idx)   __evar_iPtr(&(v), idx)  // Returns the addr of specific item for whatever the type is
+#define evar_iPtr(v, idx)   __evarp_iPtr(&(v), idx)  // Returns the addr of specific item for whatever the type is
 
 /** -----------------------------------------------------
  *
@@ -183,8 +187,19 @@ int  evar_cmp(evar a, evar b);
  *   adapter APIs for macro using, you can also using it directly
  *
  */
-cptr evarp_iPtr (evarp vp, uint idx);
-uint evarp_free (evarp vp);
+
+bool __evarp_iSet (evarp vp, uint idx, conptr  in, int inlen);
+bool __evarp_iSetV(evarp vp, uint idx, evar    in);
+bool __evarp_iSetI(evarp vp, uint idx, i64    val);
+bool __evarp_iSetF(evarp vp, uint idx, f64    val);
+bool __evarp_iSetS(evarp vp, uint idx, constr str);
+bool __evarp_iSetP(evarp vp, uint idx, conptr ptr);
+bool __evarp_iSetR(evarp vp, uint idx, evar   val);
+
+cptr __evarp_iPtr (evarp vp, uint idx);
+uint __evarp_free (evarp vp);
+
+
 
 #ifdef __cplusplus
 }

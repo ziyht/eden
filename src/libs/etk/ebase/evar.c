@@ -21,7 +21,7 @@
 #include "estr.h"
 #include "libs/estr_p.h"
 
-#define EVAR_VERISON "evar 1.0.0"
+#define EVAR_VERISON "evar 1.0.1"       // using ptr when set vals, so it can effect on all type vars
 
 static const u8 _len_map[] = __EVAR_ITEM_LEN_MAP;
 
@@ -113,7 +113,7 @@ evar  evar_gen (etypev t, int cnt, int esize)
                   };
 }
 
-uint evarp_free(evarp vp)
+uint __evarp_free(evarp vp)
 {
     uint cnt = 0;
 
@@ -186,6 +186,7 @@ uint   evar_esize(evar v)  { is1_ret(_v_isnav(v), 0); return _v_isptr(v) ? _v_vp
 u64    evar_space(evar v)  { is1_ret(_v_isnav(v), 0); return _v_isptr(v) ? _v_vp(v)->cnt * _v_vp(v)->esize : v.cnt * v.esize   ; }
 etypev evar_type (evar v)  { return _v_isptr(v) ?              _v_vp_type(v)  :              _v_type(v) ; }
 constr evar_typeS(evar v)  { return _v_isptr(v) ? __evar_typeS(_v_vp_type(v)) : __evar_typeS(_v_type(v)); }
+bool   evar_isPtr(evar v)  { return _v_isptr(v) ; }
 
 evar   evar_dup(evar v, bool deep)
 {
@@ -201,92 +202,87 @@ evar   evar_dup(evar v, bool deep)
     return v;
 }
 
-bool evar_iSetV(evar v, uint idx, evar in)
+bool __evarp_iSetV(evarp vp, uint idx, evar in)
 {
-    if(_v_isptr(v))
+    if(_vp_isptr(vp))
     {
-        evarp vp = v.v.p;
-
-        assert((vp->type) == (in.type));
-
-        is1_ret(vp->cnt <= idx, false);
-
-        switch (vp->type)
-        {
-
-            case E_STR : __estr_wrtB((estr*)_vp_iptr(vp, idx), in.v.s, strlen(in.v.s));
-                         break;
-
-            case E_RAW : __estr_wrtB((estr*)_vp_iptr(vp, idx), in.v.p, in.esize);
-                         break;
-
-            case E_USER: assert(vp->esize == in.esize);
-                         memcpy(_vp_iptr(vp, idx), in.v.p, vp->esize);
-                         break;
-
-            default    : switch (vp->esize) {
-                             case  1: _vp_ival(vp, idx)->i8  = in.v.i8;    break;
-                             case  2: _vp_ival(vp, idx)->i16 = in.v.i16;   break;
-                             case  4: _vp_ival(vp, idx)->i32 = in.v.i32;   break;
-                             case  8: _vp_ival(vp, idx)->i64 = in.v.i64;   break;
-
-                             default: return false;
-                         }
-
-                         break;
-        }
-
-        return true;
+        vp = _v_vp(*vp);
     }
 
-    return false;
-}
+    assert((vp->type) == (in.type));
 
-bool evar_iSet(evar v, uint idx, conptr  in, int inlen)
-{
-    if(_v_isptr(v))
+    is1_ret(vp->cnt <= idx, false);
+
+    switch (vp->type)
     {
-        evarp vp = v.v.p;
 
-        is1_ret(vp->cnt <= idx, false);
+        case E_STR : __estr_wrtB((estr*)_vp_iptr(vp, idx), in.v.s, strlen(in.v.s));
+                     break;
 
-        switch (vp->type)
-        {
-            case E_STR :
-            case E_RAW : __estr_wrtB((estr*)_vp_iptr(vp, idx), in, inlen);
-                         break;
+        case E_RAW : __estr_wrtB((estr*)_vp_iptr(vp, idx), in.v.p, in.esize);
+                     break;
 
-            case E_USER: is0_ret(vp->esize == inlen, false);
+        case E_USER: assert(vp->esize == in.esize);
+                     memcpy(_vp_iptr(vp, idx), in.v.p, vp->esize);
+                     break;
 
-                         memcpy(_vp_iptr(vp, idx), in, inlen);
-                         break;
+        default    : switch (vp->esize) {
+                         case  1: _vp_ival(vp, idx)->i8  = in.v.i8;    break;
+                         case  2: _vp_ival(vp, idx)->i16 = in.v.i16;   break;
+                         case  4: _vp_ival(vp, idx)->i32 = in.v.i32;   break;
+                         case  8: _vp_ival(vp, idx)->i64 = in.v.i64;   break;
 
-            default    : if(inlen > vp->esize) inlen = vp->esize;
+                         default: return false;
+                     }
 
-                         switch (inlen) {
-                             case  1: _vp_ival(vp, idx)->i8  = ((evalp)in)->i8;    break;
-                             case  2: _vp_ival(vp, idx)->i16 = ((evalp)in)->i16;   break;
-                             case  4: _vp_ival(vp, idx)->i32 = ((evalp)in)->i32;   break;
-                             case  8: _vp_ival(vp, idx)->i64 = ((evalp)in)->i64;   break;
-
-                             default: return false;
-                         }
-
-                         break;
-        }
-
-        return true;
+                     break;
     }
 
-    return false;
+    return true;
 }
 
+bool __evarp_iSet(evarp vp, uint idx, conptr  in, int inlen)
+{
+    if(_vp_isptr(vp))
+    {
+        vp = _v_vp(*vp);
+    }
 
-bool evar_iSetI(evar v, uint idx, i64    val) { return evar_iSetV(v, idx, EVAR_I64(val)); }
-bool evar_iSetF(evar v, uint idx, f64    val) { return evar_iSetV(v, idx, EVAR_F64(val)); }
-bool evar_iSetS(evar v, uint idx, constr str) { return evar_iSetV(v, idx, EVAR_CS (str)); }
-bool evar_iSetP(evar v, uint idx, conptr ptr) { return evar_iSetV(v, idx, EVAR_CP (ptr)); }
-bool evar_iSetR(evar v, uint idx, evar   val) { return evar_iSetV(v, idx,          val ); }
+    is1_ret(vp->cnt <= idx, false);
+
+    switch (vp->type)
+    {
+        case E_STR :
+        case E_RAW : __estr_wrtB((estr*)_vp_iptr(vp, idx), in, inlen);
+                     break;
+
+        case E_USER: is0_ret(vp->esize == inlen, false);
+
+                     memcpy(_vp_iptr(vp, idx), in, inlen);
+                     break;
+
+        default    : if(inlen > vp->esize) inlen = vp->esize;
+
+                     switch (inlen) {
+                         case  1: _vp_ival(vp, idx)->i8  = ((evalp)in)->i8;    break;
+                         case  2: _vp_ival(vp, idx)->i16 = ((evalp)in)->i16;   break;
+                         case  4: _vp_ival(vp, idx)->i32 = ((evalp)in)->i32;   break;
+                         case  8: _vp_ival(vp, idx)->i64 = ((evalp)in)->i64;   break;
+
+                         default: return false;
+                     }
+
+                     break;
+    }
+
+    return true;
+}
+
+bool __evarp_iSetI(evarp vp, uint idx, i64    val) { return __evarp_iSetV(vp, idx, EVAR_I64(val)); }
+bool __evarp_iSetF(evarp vp, uint idx, f64    val) { return __evarp_iSetV(vp, idx, EVAR_F64(val)); }
+bool __evarp_iSetS(evarp vp, uint idx, constr str) { return __evarp_iSetV(vp, idx, EVAR_CS (str)); }
+bool __evarp_iSetP(evarp vp, uint idx, conptr ptr) { return __evarp_iSetV(vp, idx, EVAR_CP (ptr)); }
+bool __evarp_iSetR(evarp vp, uint idx, evar   val) { return __evarp_iSetV(vp, idx,          val ); }
 
 static __always_inline i64  __evar_valI(evar v) { return _v_valI(v); }
 static __always_inline f64  __evar_valF(evar v) { return _v_valF(v); }
@@ -330,6 +326,7 @@ evar evar_i    (evar v, uint idx)
     return EVAR_NAV;
 }
 
+#if 0
 cptr evar_iPtr (evar v, uint idx)
 {
     if(_v_isptr(v))
@@ -355,13 +352,13 @@ cptr evar_iPtr (evar v, uint idx)
         case E_USER: return _v_ival(v, idx)->s;
 
         default    : break;
-
     }
 
     return 0;
 }
+#endif
 
-cptr evarp_iPtr (evarp vp, uint idx)
+cptr __evarp_iPtr (evarp vp, uint idx)
 {
     if(_vp_isptr(vp))
     {
