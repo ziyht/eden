@@ -207,12 +207,12 @@ static int test_unbuffered_timeRecvNums(etypev t)
 
 static int test_buffered_nums_exec(etypev t)
 {
-    ETEST_RUN( test_buffered_sendNums(E_I8) );
-    ETEST_RUN( test_buffered_trySendNums(E_I8) );
-    ETEST_RUN( test_buffered_timeSendNums(E_I8) );
+    ETEST_RUN( test_buffered_sendNums(t) );
+    ETEST_RUN( test_buffered_trySendNums(t) );
+    ETEST_RUN( test_buffered_timeSendNums(t) );
 
-    ETEST_RUN( test_unbuffered_tryRecvNums(E_I8) );
-    ETEST_RUN( test_unbuffered_timeRecvNums(E_I8) );
+    ETEST_RUN( test_unbuffered_tryRecvNums(t) );
+    ETEST_RUN( test_unbuffered_timeRecvNums(t) );
 
     return ETEST_OK;
 }

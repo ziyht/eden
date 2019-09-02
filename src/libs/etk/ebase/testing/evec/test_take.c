@@ -298,6 +298,8 @@ static int test_take_idxs(etypev t)
     return ETEST_OK;
 }
 
+
+
 int test_take(int argc, char* argv[])
 {
     (void)argc; (void)argv;

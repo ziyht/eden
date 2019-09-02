@@ -101,7 +101,7 @@ static void* _send_num(void* d)
 
 static int test_unbuffered_recvNums(etypev t)
 {
-    echan c; int ret; ethread_t th; void* thread_ret;
+    echan c; ethread_t th; void* thread_ret;
 
     c = echan_new(t, 0);
 
@@ -138,7 +138,7 @@ static int test_unbuffered_recvNums(etypev t)
 
 static int test_unbuffered_tryRecvNums(etypev t)
 {
-    echan c; int ret;
+    echan c;
 
     c = echan_new(t, 0);
 

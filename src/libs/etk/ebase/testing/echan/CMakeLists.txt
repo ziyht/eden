@@ -34,9 +34,10 @@ ETestAddTestSet(echan
     CASES   test_init.c
             test_basic.c
             test_buffered_sigs.c
-            test_buffered_nums.c
+            test_buffered_nums.c    # include E_PTR
+            test_buffered_strs.c
             test_unbuffered_sigs.c
-            test_unbuffered_nums.c
+            test_unbuffered_nums.c  # include E_PTR
 
 
     DEPENDS -lpthread|LINUX

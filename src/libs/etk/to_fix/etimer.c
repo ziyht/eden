@@ -393,7 +393,7 @@ static void* __inner_loop(void* arg)
             llog("loop: no timer lock");
             //cond_twait(loop->co_wait, loop->mu_wait, 1000);
             //mutex_lock(loop->mu_wait);
-            echan_recvALL(loop->sigs);
+            echan_recvAll(loop->sigs);
             llog("loop: no timer lock over");
 
             continue;

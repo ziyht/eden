@@ -30,31 +30,34 @@ typedef enum etypev_s{
     //! val
     E_NAV =  0,         // not a evar
 
-    E_CHAR=  1,         // E_CHAR       treat CHAR as I8, they are typically the same
+    E_CHAR=  1,         // treat CHAR as I8, they are typically the same
 
-    E_I8  =  1,         // E_I8
-    E_I16 =  2,         // E_I16
-    E_I32 =  3,         // E_I32
-    E_I64 =  4,         // E_I64
+    E_I8  =  1,         //
+    E_I16 =  2,         //
+    E_I32 =  3,         //
+    E_I64 =  4,         //
 
-    E_U8  =  5,         // E_U8
-    E_U16 =  6,         // E_U16
-    E_U32 =  7,         // E_U32
-    E_U64 =  8,         // E_U64
+    E_U8  =  5,         //
+    E_U16 =  6,         //
+    E_U32 =  7,         //
+    E_U64 =  8,         //
 
-    E_F32 =  9,         // E_F32
-    E_F64 = 10,         // E_F64
+    E_F32 =  9,         //
+    E_F64 = 10,         //
 
-    E_PTR = 11,         // E_PTR
-    E_STR = 12,         // E_STR        handle as estr internal, so the esize of this type is 8
-    E_RAW = 13,         // E_RAW        handle as estr internal, so the esize of this type is 8
+    E_PTR = 11,         //
+    E_STR = 12,         // handle as estr internal, so the esize of this type is 8
+    E_RAW = 13,         // handle as estr internal, so the esize of this type is 8
 
-    E_USER= 14,         // E_USER
+    E_SIG = 14,
+    E_VAR = 15,
+
+    E_USER= 16,         // E_USER
 
     E_UNKOWN = 0xff,
 }etypev;
 
-#define __EVAR_ITEM_LEN_MAP {0,  1, 2, 4, 8,  1, 2, 4, 8,  4, 8,  8, 8, 8}  // up to
+#define __EVAR_ITEM_LEN_MAP {0,  1, 2, 4, 8,  1, 2, 4, 8,  4, 8,  8, 8, 8,  0, 16}  // up to
 
 //! __ETYPEV_ARR_MASK:
 //!

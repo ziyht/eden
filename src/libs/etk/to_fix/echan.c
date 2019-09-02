@@ -37,7 +37,7 @@
 
 #include "echan.h"
 
-#pragma pack(push, 1)
+#pragma pack(1)
 typedef struct echan_s
 {
     // Shared properties
@@ -60,7 +60,7 @@ typedef struct echan_s
     }           d;
 
 }echan_t;
-#pragma pack(pop)
+#pragma pack()
 
 #define _c_sigs(c)  (c)->data.v.u64
 #define _c_queue(c) (c)->data.v.p
@@ -220,7 +220,7 @@ int echan_closed(echan chan)
 
 int  echan_type (echan chan)
 {
-    return chan ? chan->type : -1;
+    return chan ? chan->type : E_NAV;
 }
 
 uint echan_wwait(echan chan)
@@ -256,7 +256,7 @@ uint echan_size(echan chan)
     int size = 0;
     emutex_lock(chan->m_mu);
 
-    size = chan->cap ? chan->type == E_NAV ? chan->d.sigs
+    size = chan->cap ? chan->type == E_SIG ? chan->d.sigs
                                            : evec_len(chan->d.chan)
                      : 0;
 
@@ -271,7 +271,7 @@ uint echan_sigs (echan chan)
 
     emutex_lock(chan->m_mu);
 
-    sigs = chan->cap ? chan->type == E_NAV ? chan->d.sigs
+    sigs = chan->cap ? chan->type == E_SIG ? chan->d.sigs
                                            : 0
                      : 0;
 
@@ -593,8 +593,8 @@ static __always_inline int __echan_recv_dispatch(echan c, int timeout, evarp var
 #define EVAR_F64_C(c)  __EVAR_MK(E_F64, 0, c, EVAL_0)
 #define EVAR_STR_C(c)  __EVAR_MK(E_STR, 0, c, EVAL_0)
 #define EVAR_PTR_C(c)  __EVAR_MK(E_PTR, 0, c, EVAL_0)
-#define EVAR_ALL_C(c)  __EVAR_MK(E_ALL, 0, c, EVAL_0)
 #define EVAR_SIG_C(c)  __EVAR_MK(E_SIG, 0, c, EVAL_0)
+#define EVAR_ALL_C(c)  __EVAR_MK(E_ALL, 0, c, EVAL_0)
 
 i64  echan_recvI  (echan chan) { evar var = EVAR_I64_C(1); return __echan_recv_dispatch(chan, -1, &var) ? var.v.i64 : 0; }
 f64  echan_recvF  (echan chan) { evar var = EVAR_F64_C(1); return __echan_recv_dispatch(chan, -1, &var) ? var.v.f64 : 0; }
@@ -639,6 +639,11 @@ evar echan_timeRecvPs  (echan chan, uint cnt, int timeout) { evar var = EVAR_PTR
 evar echan_timeRecvVs  (echan chan, uint cnt, int timeout) { evar var = EVAR_ALL_C(cnt); return __echan_recv_dispatch(chan, timeout, &var) ? var : EVAR_NAV; }
 uint echan_timeRecvSigs(echan chan, uint cnt, int timeout) { evar var = EVAR_SIG_C(cnt); return __echan_recv_dispatch(chan, timeout, &var) ? cnt : 0; }
 
+#define _RECV_ALL 0x01
+
+evar echan_recvAll    (echan chan)              { evar var = EVAR_ALL_C(1); var.__ &= _RECV_ALL; if(__echan_recv_dispatch(chan,      -1, &var)) { var.__ = 0; return var; } return EVAR_NAV;}
+evar echan_tryRecvAll (echan chan)              { evar var = EVAR_ALL_C(1); var.__ &= _RECV_ALL; if(__echan_recv_dispatch(chan,       0, &var)) { var.__ = 0; return var; } return EVAR_NAV;}
+evar echan_timeRecvAll(echan chan, int timeout) { evar var = EVAR_ALL_C(1); var.__ &= _RECV_ALL; if(__echan_recv_dispatch(chan, timeout, &var)) { var.__ = 0; return var; } return EVAR_NAV;}
 
 static int __echan_time_recv_sigs_buffered  (echan c, int timeout, evarp varp);
 static int __echan_time_recv_sigs_unbuffered(echan c, int timeout, evarp varp);
@@ -676,7 +681,10 @@ static int __echan_time_recv_sigs_buffered(echan c, int timeout, evarp varp)
 
     _c_checkopened_m(c);
 
-    uint need = varp->cnt;
+    uint need;
+
+    if(varp->__ & _RECV_ALL) need = c->d.sigs;
+    else                     need = varp->cnt;
 
     while(1)
     {
@@ -741,14 +749,20 @@ static int __echan_time_recv_sigs_unbuffered(echan c, int timeout, evarp varp)
 
     _c_checkopened_mr(c);
 
+    if(varp->__ & _RECV_ALL)
+        varp->cnt = c->d.sigs;
+
     while( 1 )
     {
         if(c->w_waiting && varp->cnt == c->d.sigs)
         {
             c->d.sigs = 0;
 
-            // Signal waiting writer.
-            econd_one(c->w_cond);
+            if(varp->cnt)
+            {
+                // Signal waiting writer.
+                econd_one(c->w_cond);
+            }
 
             ret = 0;
 
@@ -790,6 +804,9 @@ static int __echan_time_recv_chan_buffered(echan c, int timeout, evarp varp)
     emutex_lock(c->m_mu);
 
     _c_checkopened_m(c);
+
+    if(varp->__ & _RECV_ALL)
+        varp->cnt = evec_len(c->d.chan);
 
     while(1)
     {

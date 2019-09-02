@@ -216,10 +216,22 @@ bool __evarp_iSetV(evarp vp, uint idx, evar in)
     switch (vp->type)
     {
 
-        case E_STR : __estr_wrtB((estr*)_vp_iptr(vp, idx), in.v.s, strlen(in.v.s));
+        case E_STR : {
+                         eval* v = _vp_ival(vp, idx);
+
+                         if(!in.v.s) { estr_free(v->s); v->s = 0; }
+                         else          estr_wrtB(v->s, in.v.s, strlen(in.v.s));
+                     }
+
                      break;
 
-        case E_RAW : __estr_wrtB((estr*)_vp_iptr(vp, idx), in.v.p, in.esize);
+        case E_RAW : {
+                         eval* v = _vp_ival(vp, idx);
+
+                         if(!in.v.s) { estr_free(v->s); v->s = 0; }
+                         else          estr_wrtB(v->s, in.v.p, in.esize);;
+                     }
+
                      break;
 
         case E_USER: assert(vp->esize == in.esize);
@@ -253,7 +265,13 @@ bool __evarp_iSet(evarp vp, uint idx, conptr  in, int inlen)
     switch (vp->type)
     {
         case E_STR :
-        case E_RAW : __estr_wrtB((estr*)_vp_iptr(vp, idx), in, inlen);
+        case E_RAW : {
+                         eval* v = _vp_ival(vp, idx);
+
+                         if(!in) { estr_free(v->s); v->s = 0; }
+                         else      estr_wrtB(v->s, in, inlen);
+                     }
+
                      break;
 
         case E_USER: is0_ret(vp->esize == inlen, false);

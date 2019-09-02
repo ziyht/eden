@@ -43,7 +43,6 @@ typedef struct echan_s* echan;
 /// msg successfully.
 ///
 
-#define E_SIG   E_NAV
 #define E_ALL   E_UNKOWN
 
 echan echan_new (etypev type, uint cap);     // create a echan
@@ -55,12 +54,12 @@ int   echan_closed(echan chan);              // echan is closed or not
 int   echan_open  (echan chan);             // Open a echan, so it can transfer data again
 int   echan_opened(echan chan);             // Returns true
 
-int    echan_type (echan chan);
-uint   echan_wwait(echan chan);              // Returns the cnt of current write client
-uint   echan_rwait(echan chan);              // Returns the cnt of current read  client
-uint   echan_len  (echan chan);              // Returns the cnt of elements in channal
-uint   echan_sigs (echan chan);              // Returns the cnt of signals  in channal
-uint   echan_cap  (echan chan);              // Returns the cap of elements in channal
+int   echan_type (echan chan);
+uint  echan_wwait(echan chan);              // Returns the cnt of current write client
+uint  echan_rwait(echan chan);              // Returns the cnt of current read  client
+uint  echan_len  (echan chan);              // Returns the cnt of elements in channal
+uint  echan_sigs (echan chan);              // Returns the cnt of signals  in channal
+uint  echan_cap  (echan chan);              // Returns the cap of elements in channal
 
 /// ---------------------- sender -------------------------
 ///
@@ -163,8 +162,11 @@ evar echan_timeRecvPs  (echan chan, uint cnt, int timeout);
 evar echan_timeRecvVs  (echan chan, uint cnt, int timeout);
 uint echan_timeRecvSigs(echan chan, uint cnt, int timeout);
 
-//! todo: recv all
+evar echan_recvAll    (echan chan);
+evar echan_tryRecvAll (echan chan);
+evar echan_timeRecvAll(echan chan, int timeout);
 
+//! todo
 int echan_select(echan recv_chans[], int recv_count, cptr* recv_out,
     echan send_chans[], int send_count, cptr send_msgs[]);
 
