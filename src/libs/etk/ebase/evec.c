@@ -27,7 +27,7 @@
 
 #include "evec.h"
 
-#define EVEC_VERSION "evec 1.0.4"       // fix evec_take APIs
+#define EVEC_VERSION "evec 1.0.5"       // fix evec_take APIs
 
 #define _EVEC_CHECK 1   // debug using
 
@@ -791,7 +791,7 @@ static void __split_foreach_free_raw(_split s)
     {
         estr* s_p, * end;
 
-        if(_split_rpos(s) > _split_len(s))
+        if(_split_rpos(s) > _split_cap(s))
         {
             s_p = (estr*)_split_base(s);
             end = (estr*)_split_lptr(s);
@@ -944,7 +944,7 @@ static bool __evec_addV(evec v, uint idx, evar var)
 
     if(v_type >= E_USER)
     {
-        return __evec_addB(v, idx, evar_iPtr(var, 0), var.esize, evar_cnt(var));
+        return __evec_addB(v, idx, evar_iValp(var, 0)->r, var.esize, evar_cnt(var));
     }
 
     switch(v_type)
@@ -1062,9 +1062,9 @@ static evar __evec_take_vars(evec v, i64 idx, uint cnt)
         var = evar_gen(_v_type(v), cnt, _v_esize(v));
 
         if(cnt == 1)
-            evar_iSet(var, 0, _split_pptr(p.s, p.pos), _v_esize(v));
+            evar_iSetE(var, 0, EVAR_S(_split_pval(p.s, p.pos).s));
         else
-            __split_copy_rooms(&v->s, &p, evar_iPtr(var, 0));
+            __split_copy_rooms(&v->s, &p, evar_iValp(var, 0)->r);
     }
 
     //! free it from split

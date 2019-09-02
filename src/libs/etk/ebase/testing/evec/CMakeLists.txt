@@ -39,6 +39,7 @@ ETestAddTestSet(evec
             test_logic.cpp
             test_limit.c
             test_take.c
+            test_take_str.c
 
     DEPENDS #Qt5::Core
 
