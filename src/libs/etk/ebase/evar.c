@@ -21,7 +21,7 @@
 #include "estr.h"
 #include "libs/estr_p.h"
 
-#define EVAR_VERISON "evar 1.0.1"       // using ptr when set vals, so it can effect on all type vars
+#define EVAR_VERISON "evar 1.0.2"       // adjust api, fix bugs
 
 static const u8 _len_map[] = __EVAR_ITEM_LEN_MAP;
 
@@ -38,7 +38,7 @@ static const u8 _len_map[] = __EVAR_ITEM_LEN_MAP;
 #define _v_ival(v, i)       ((eval*)_v_iptr(v, i))
 
 #define _vp_iptr(vp, i)     ((char*)(vp)->v.r + (vp)->esize * i)
-#define _vp_ival(vp, i)     ((eval*)_vp_iptr( vp, i))
+#define _vp_ivalp(vp, i)     ((eval*)_vp_iptr( vp, i))
 
 #define _vp_type( vp)       ((vp)->type)
 
@@ -101,9 +101,9 @@ evar  evar_gen (etypev t, int cnt, int esize)
     if(esize < 1 || cnt < 1)
         return EVAR_NAV;
 
-    if(t <= E_PTR && esize * cnt <= 8)
+    if(esize * cnt <= 8)
     {
-        return (evar){  0,
+        return (evar){  __ETYPEV_ARR_MASK,
                         t, esize, cnt, EVAL_0
                     };
     }
@@ -115,14 +115,15 @@ evar  evar_gen (etypev t, int cnt, int esize)
 
 uint __evarp_free(evarp vp)
 {
-    uint cnt = 0;
+    evarp vp2; uint cnt = 0;
 
     is1_ret(vp->type == E_NAV, 0);
 
-    if(_vp_isptr(vp))
+    vp2 = _vp_isptr(vp) ? _v_vp(*vp) : vp;
+
+    if(_vp_isarr(vp2))
     {
-        evarp vp2   = vp->v.p;
-        cnt         = vp->cnt;
+        cnt   = vp->cnt;
 
         switch (vp2->type)
         {
@@ -140,7 +141,8 @@ uint __evarp_free(evarp vp)
                         }
         }
 
-        efree(vp2);
+        if(vp2 != vp)
+            efree(vp2);
     }
     else
         cnt = vp->cnt;
@@ -217,7 +219,7 @@ bool __evarp_iSetV(evarp vp, uint idx, evar in)
     {
 
         case E_STR : {
-                         eval* v = _vp_ival(vp, idx);
+                         eval* v = _vp_ivalp(vp, idx);
 
                          if(!in.v.s) { estr_free(v->s); v->s = 0; }
                          else          estr_wrtB(v->s, in.v.s, strlen(in.v.s));
@@ -226,7 +228,7 @@ bool __evarp_iSetV(evarp vp, uint idx, evar in)
                      break;
 
         case E_RAW : {
-                         eval* v = _vp_ival(vp, idx);
+                         eval* v = _vp_ivalp(vp, idx);
 
                          if(!in.v.s) { estr_free(v->s); v->s = 0; }
                          else          estr_wrtB(v->s, in.v.p, in.esize);;
@@ -239,10 +241,10 @@ bool __evarp_iSetV(evarp vp, uint idx, evar in)
                      break;
 
         default    : switch (vp->esize) {
-                         case  1: _vp_ival(vp, idx)->i8  = in.v.i8;    break;
-                         case  2: _vp_ival(vp, idx)->i16 = in.v.i16;   break;
-                         case  4: _vp_ival(vp, idx)->i32 = in.v.i32;   break;
-                         case  8: _vp_ival(vp, idx)->i64 = in.v.i64;   break;
+                         case  1: _vp_ivalp(vp, idx)->i8  = in.v.i8;    break;
+                         case  2: _vp_ivalp(vp, idx)->i16 = in.v.i16;   break;
+                         case  4: _vp_ivalp(vp, idx)->i32 = in.v.i32;   break;
+                         case  8: _vp_ivalp(vp, idx)->i64 = in.v.i64;   break;
 
                          default: return false;
                      }
@@ -253,7 +255,7 @@ bool __evarp_iSetV(evarp vp, uint idx, evar in)
     return true;
 }
 
-bool __evarp_iSet(evarp vp, uint idx, conptr  in, int inlen)
+bool __evarp_iSetE(evarp vp, uint idx, evar elm)
 {
     if(_vp_isptr(vp))
     {
@@ -262,36 +264,26 @@ bool __evarp_iSet(evarp vp, uint idx, conptr  in, int inlen)
 
     is1_ret(vp->cnt <= idx, false);
 
-    switch (vp->type)
+    if(elm.type < E_USER)
     {
-        case E_STR :
-        case E_RAW : {
-                         eval* v = _vp_ival(vp, idx);
+        if(elm.type != vp->type)
+            return false;
 
-                         if(!in) { estr_free(v->s); v->s = 0; }
-                         else      estr_wrtB(v->s, in, inlen);
-                     }
+        switch (vp->esize) {
+            case  1: _vp_ivalp(vp, idx)->i8  = elm.v.i8;    break;
+            case  2: _vp_ivalp(vp, idx)->i16 = elm.v.i16;   break;
+            case  4: _vp_ivalp(vp, idx)->i32 = elm.v.i32;   break;
+            case  8: _vp_ivalp(vp, idx)->i64 = elm.v.i64;   break;
 
-                     break;
+        default: break;
+        }
 
-        case E_USER: is0_ret(vp->esize == inlen, false);
-
-                     memcpy(_vp_iptr(vp, idx), in, inlen);
-                     break;
-
-        default    : if(inlen > vp->esize) inlen = vp->esize;
-
-                     switch (inlen) {
-                         case  1: _vp_ival(vp, idx)->i8  = ((evalp)in)->i8;    break;
-                         case  2: _vp_ival(vp, idx)->i16 = ((evalp)in)->i16;   break;
-                         case  4: _vp_ival(vp, idx)->i32 = ((evalp)in)->i32;   break;
-                         case  8: _vp_ival(vp, idx)->i64 = ((evalp)in)->i64;   break;
-
-                         default: return false;
-                     }
-
-                     break;
+        return true;
     }
+
+    is0_ret(vp->esize == elm.esize, false);
+
+    memcpy(_vp_iptr(vp, idx), elm.v.p, elm.esize);
 
     return true;
 }
@@ -328,14 +320,14 @@ evar evar_i    (evar v, uint idx)
     switch (_vp_type(vp))
     {
         case E_STR :
-        case E_RAW : return (evar){0, vp->type, vp->esize, 1, EVAL_P(_vp_ival(vp, idx)->s) };
-        case E_USER: return _v_isptr(v) ? (evar){0, vp->type, vp->esize, 1, EVAL_P(_vp_ival(vp, idx)->r) }
-                                        : (evar){0, vp->type, vp->esize, 1, EVAL_P(_vp_ival(vp, idx)->s) };
+        case E_RAW : return (evar){0, vp->type, vp->esize, 1, EVAL_P(_vp_ivalp(vp, idx)->s) };
+        case E_USER: return _v_isptr(v) ? (evar){0, vp->type, vp->esize, 1, EVAL_P(_vp_ivalp(vp, idx)->r) }
+                                        : (evar){0, vp->type, vp->esize, 1, EVAL_P(_vp_ivalp(vp, idx)->s) };
         default    : switch (vp->esize) {
-                        case  1: return (evar){0,vp->type, vp->esize, 1, EVAL_I8 (_vp_ival(vp, idx)->i8 ) };
-                        case  2: return (evar){0,vp->type, vp->esize, 1, EVAL_I16(_vp_ival(vp, idx)->i16) };
-                        case  4: return (evar){0,vp->type, vp->esize, 1, EVAL_I32(_vp_ival(vp, idx)->i32) };
-                        case  8: return (evar){0,vp->type, vp->esize, 1, EVAL_I64(_vp_ival(vp, idx)->i64) };
+                        case  1: return (evar){0,vp->type, vp->esize, 1, EVAL_I8 (_vp_ivalp(vp, idx)->i8 ) };
+                        case  2: return (evar){0,vp->type, vp->esize, 1, EVAL_I16(_vp_ivalp(vp, idx)->i16) };
+                        case  4: return (evar){0,vp->type, vp->esize, 1, EVAL_I32(_vp_ivalp(vp, idx)->i32) };
+                        case  8: return (evar){0,vp->type, vp->esize, 1, EVAL_I64(_vp_ivalp(vp, idx)->i64) };
 
                         default: return EVAR_NAV;     // this should not happen
                      }
@@ -344,39 +336,7 @@ evar evar_i    (evar v, uint idx)
     return EVAR_NAV;
 }
 
-#if 0
-cptr evar_iPtr (evar v, uint idx)
-{
-    if(_v_isptr(v))
-    {
-        evarp vp = _v_vp(v);
-
-        is1_ret(idx >= vp->cnt, 0);
-
-        switch (_vp_type(vp))
-        {
-            case E_STR :
-            case E_RAW : return _vp_ival(vp, idx)->s;
-            default    : return _vp_ival(vp, idx)->r;
-        }
-    }
-
-    is1_ret(idx >= v.cnt, 0);
-
-    switch (_v_type(v))
-    {
-        case E_STR :
-        case E_RAW :
-        case E_USER: return _v_ival(v, idx)->s;
-
-        default    : break;
-    }
-
-    return 0;
-}
-#endif
-
-cptr __evarp_iPtr (evarp vp, uint idx)
+eval*__evarp_iValp(evarp vp, uint idx)
 {
     if(_vp_isptr(vp))
     {
@@ -385,20 +345,7 @@ cptr __evarp_iPtr (evarp vp, uint idx)
 
     is1_ret(idx >= vp->cnt, 0);
 
-    switch (_vp_type(vp))
-    {
-        case E_STR :
-        case E_RAW : return _vp_ival(vp, idx)->s;
-
-        default    : if(_vp_type(vp) < E_USER)
-                         return _vp_ival(vp, idx)->r;
-
-                     return _vp_isarr(vp) ? _vp_ival(vp, idx)->r
-                                          : _vp_ival(vp, idx)->s;
-
-    }
-
-    return 0;
+    return _vp_ivalp(vp, idx);
 }
 
 eval evar_iVal (evar v, uint idx) { return evar_i(v, idx).v; }
@@ -500,7 +447,7 @@ int  evar_cmp(evar a, evar b)
                 case E_STR : { int r = estr_cmp(vpa->v.sa[pos], vpb->v.sa[pos]); if(r) return r; }
                 case E_RAW : { int r = estr_cmp(vpa->v.sa[pos], vpb->v.sa[pos]); if(r) return r; }
 
-                case E_USER: { int r = memcmp(_vp_ival(vpa, pos)->r, _vp_ival(vpb, pos)->r, vpa->esize); if(r) return r; }
+                case E_USER: { int r = memcmp(_vp_ivalp(vpa, pos)->r, _vp_ivalp(vpb, pos)->r, vpa->esize); if(r) return r; }
             }
         }
     }

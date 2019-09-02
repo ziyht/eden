@@ -32,7 +32,6 @@ static int set_test_case1()
     for(i = 0; i < 100; i++)
     {
         ll2str(i, str);
-        eexpect_ptr(evar_iValS(v, i), evar_iPtr(v, i));
         eexpect_str(evar_iValS(v, i), str);
     }
     evar_free(v);
@@ -56,7 +55,7 @@ static int set_test_case2()
 
         ds* p = evar_i(v, i).v.p;
 
-        eexpect_ptr(evar_iPtr(v, i), p);
+        eexpect_ptr(evar_iValp(v, i), p);
         eexpect_0(memcmp(p, &data, sizeof (ds)));
     }
 

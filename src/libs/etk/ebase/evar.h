@@ -133,19 +133,18 @@ bool   evar_isPtr(evar v);
  *
  * note:
  *
- *  1. this will have effect only when the var is created by evar_gen()
+ *  1. the input param of type evar should only be created by macros
  *  2. the len or type must match the internal len and type
- *  3. for E_STR, E_RAW and E_USER, we make a copy
  *
  */
 
-#define evar_iSet( v, idx, in, inlen)  __evarp_iSet( &(v), idx, in, inlen)
-#define evar_iSetI(v, idx, val)        __evarp_iSetI(&(v), idx, val)
-#define evar_iSetF(v, idx, val)        __evarp_iSetF(&(v), idx, val)
-#define evar_iSetS(v, idx, str)        __evarp_iSetS(&(v), idx, str)
-#define evar_iSetP(v, idx, ptr)        __evarp_iSetP(&(v), idx, ptr)
-#define evar_iSetR(v, idx, var)        __evarp_iSetR(&(v), idx, var)
-#define evar_iSetV(v, idx, var)        __evarp_iSetV(&(v), idx, var)
+#define evar_iSetE(v, idx, elm)   __evarp_iSetE(&(v), idx, elm)     // do not make dup of input E_STR or E_RAW
+#define evar_iSetI(v, idx, val)   __evarp_iSetI(&(v), idx, val)
+#define evar_iSetF(v, idx, val)   __evarp_iSetF(&(v), idx, val)
+#define evar_iSetS(v, idx, str)   __evarp_iSetS(&(v), idx, str)     // make dup
+#define evar_iSetP(v, idx, ptr)   __evarp_iSetP(&(v), idx, ptr)
+#define evar_iSetR(v, idx, var)   __evarp_iSetR(&(v), idx, var)     // make dup
+#define evar_iSetV(v, idx, var)   __evarp_iSetV(&(v), idx, var)     // make dup
 
 /** -----------------------------------------------------
  *
@@ -175,7 +174,7 @@ cptr evar_iValR(evar v, uint idx);      // Returns the rawp  hold by item if exi
 uint evar_iLenS(evar v, uint idx);      // Returns the len        of item if exist and type matchs E_STR
 uint evar_iLenR(evar v, uint idx);      // Returns the len        of item if exist and type matchs E_RAW
 
-#define evar_iPtr(v, idx)   __evarp_iPtr(&(v), idx)  // Returns the addr of specific item for whatever the type is
+#define evar_iValp(v, idx)   __evarp_iValp(&(v), idx)  // Returns the addr of specific elem
 
 /** -----------------------------------------------------
  *
@@ -191,15 +190,15 @@ int  evar_cmp(evar a, evar b);
  *
  */
 
-bool __evarp_iSet (evarp vp, uint idx, conptr  in, int inlen);
+bool __evarp_iSetE(evarp vp, uint idx, evar   elm);
 bool __evarp_iSetV(evarp vp, uint idx, evar    in);
 bool __evarp_iSetI(evarp vp, uint idx, i64    val);
 bool __evarp_iSetF(evarp vp, uint idx, f64    val);
 bool __evarp_iSetS(evarp vp, uint idx, constr str);
 bool __evarp_iSetP(evarp vp, uint idx, conptr ptr);
-bool __evarp_iSetR(evarp vp, uint idx, evar   val);
+bool __evarp_iSetR(evarp vp, uint idx, evar   raw);
 
-cptr __evarp_iPtr (evarp vp, uint idx);
+eval*__evarp_iValp (evarp vp, uint idx);
 uint __evarp_free (evarp vp);
 
 
