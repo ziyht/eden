@@ -31,6 +31,8 @@ cmake_minimum_required(VERSION 2.8.1)
 #
 
 ETestAddTestSet(echan
+    TYPE    Unit
+
     CASES   test_init.c
             test_basic.c
             test_buffered_sigs.c

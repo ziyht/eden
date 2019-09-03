@@ -31,7 +31,7 @@ static int test_take_num(etypev t)
         {
             evar t = evec_takeH(v);
             eexpect_eq(t.cnt , 1);
-            eexpect_eq(t.v.i8, s);
+            eexpect_eq(t.v.i64, s);
             evar_free(t);
         }
 

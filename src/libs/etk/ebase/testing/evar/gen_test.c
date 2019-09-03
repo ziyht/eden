@@ -26,12 +26,12 @@ static int test_stack()
         eexpect_eq( evar_cnt  (evar_i    (var, 0)), 1);
         eexpect_eq( evar_esize(evar_i    (var, 0)), 1);
         eexpect_eq( evar_type (evar_i    (var, 0)), E_I8);
-        eexpect_eq( evar_iVal(var, 0).i8, 123);
+        eexpect_eq( evar_iElem(var, 0)->i8, 123);
 
         eexpect_eq( evar_cnt  (evar_i    (var, 1)), 0);
         eexpect_eq( evar_esize(evar_i    (var, 1)), 0);
         eexpect_eq( evar_type (evar_i    (var, 1)), E_NAV);
-        eexpect_eq( evar_iVal(var, 1).i8, 0);
+        eexpect_ptr( evar_iElem(var, 1), 0);
     }
 
     {
@@ -44,12 +44,12 @@ static int test_stack()
         eexpect_eq( evar_cnt  (evar_i    (var, 0)), 1);
         eexpect_eq( evar_esize(evar_i    (var, 0)), 2);
         eexpect_eq( evar_type (evar_i    (var, 0)), E_I16);
-        eexpect_eq( evar_iVal(var, 0).i16, 123);
+        eexpect_eq( evar_iElem(var, 0)->i16, 123);
 
         eexpect_eq( evar_cnt  (evar_i    (var, 1)), 0);
         eexpect_eq( evar_esize(evar_i    (var, 1)), 0);
         eexpect_eq( evar_type (evar_i    (var, 1)), E_NAV);
-        eexpect_eq( evar_iVal(var, 1).i16, 0);
+        eexpect_ptr( evar_iElem(var, 1), 0);
     }
 
     {
@@ -62,12 +62,12 @@ static int test_stack()
         eexpect_eq( evar_cnt  (evar_i    (var, 0)), 1);
         eexpect_eq( evar_esize(evar_i    (var, 0)), 4);
         eexpect_eq( evar_type (evar_i    (var, 0)), E_I32);
-        eexpect_eq( evar_iVal(var, 0).i32, 123);
+        eexpect_eq( evar_iElem(var, 0)->i32, 123);
 
         eexpect_eq( evar_cnt  (evar_i    (var, 1)), 0);
         eexpect_eq( evar_esize(evar_i    (var, 1)), 0);
         eexpect_eq( evar_type (evar_i    (var, 1)), E_NAV);
-        eexpect_eq( evar_iVal(var, 1).i32, 0);
+        eexpect_ptr( evar_iElem(var, 1), 0);
     }
 
     {
@@ -80,12 +80,12 @@ static int test_stack()
         eexpect_eq( evar_cnt  (evar_i    (var, 0)), 1);
         eexpect_eq( evar_esize(evar_i    (var, 0)), 4);
         eexpect_eq( evar_type (evar_i    (var, 0)), E_RAW);
-        eexpect_raw( evar_iVal(var, 0).p, "user", 4);
+        eexpect_raw(evar_iElem(var, 0)->s, "user", 4);
 
         eexpect_eq( evar_cnt  (evar_i    (var, 1)), 0);
         eexpect_eq( evar_esize(evar_i    (var, 1)), 0);
         eexpect_eq( evar_type (evar_i    (var, 1)), E_NAV);
-        eexpect_ptr( evar_iVal(var, 1).p, 0);
+        eexpect_ptr(evar_iElem(var, 1), 0);
 
         var = evar_gen(E_RAW, 1, 0);
 
@@ -98,12 +98,12 @@ static int test_stack()
         eexpect_eq( evar_cnt  (evar_i    (var, 0)), 1);
         eexpect_eq( evar_esize(evar_i    (var, 0)), 8);
         eexpect_eq( evar_type (evar_i    (var, 0)), E_RAW);
-        eexpect_raw( evar_iVal(var, 0).p, "user", 4);
+        eexpect_raw(evar_iElem(var, 0)->s, "user", 4);
 
         eexpect_eq( evar_cnt  (evar_i    (var, 1)), 0);
         eexpect_eq( evar_esize(evar_i    (var, 1)), 0);
         eexpect_eq( evar_type (evar_i    (var, 1)), E_NAV);
-        eexpect_ptr( evar_iVal(var, 1).p, 0);
+        eexpect_ptr(evar_iElem(var, 1), 0);
 
         evar_free(var);
     }
@@ -118,12 +118,12 @@ static int test_stack()
         eexpect_eq( evar_cnt  (evar_i    (var, 0)), 1);
         eexpect_eq( evar_esize(evar_i    (var, 0)), 4);
         eexpect_eq( evar_type (evar_i    (var, 0)), E_USER);
-        eexpect_raw( evar_iVal(var, 0).p, "user", 4);
+        eexpect_raw(evar_iElem(var, 0)->r, "user", 4);
 
         eexpect_eq( evar_cnt  (evar_i    (var, 1)), 0);
         eexpect_eq( evar_esize(evar_i    (var, 1)), 0);
         eexpect_eq( evar_type (evar_i    (var, 1)), E_NAV);
-        eexpect_ptr( evar_iVal(var, 1).p, 0);
+        eexpect_ptr(evar_iElem(var, 1), 0);
 
         var = evar_gen(E_USER, 1, 4);
 
@@ -136,12 +136,12 @@ static int test_stack()
         eexpect_eq( evar_cnt  (evar_i    (var, 0)), 1);
         eexpect_eq( evar_esize(evar_i    (var, 0)), 4);
         eexpect_eq( evar_type (evar_i    (var, 0)), E_USER);
-        eexpect_raw( evar_iVal(var, 0).p, "user", 4);
+        eexpect_raw(evar_iElem(var, 0)->r, "user", 4);
 
         eexpect_eq( evar_cnt  (evar_i    (var, 1)), 0);
         eexpect_eq( evar_esize(evar_i    (var, 1)), 0);
         eexpect_eq( evar_type (evar_i    (var, 1)), E_NAV);
-        eexpect_ptr( evar_iVal(var, 1).p, 0);
+        eexpect_ptr(evar_iElem(var, 1), 0);
 
         evar_free(var);
     }

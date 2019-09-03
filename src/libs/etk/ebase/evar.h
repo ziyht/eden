@@ -150,6 +150,9 @@ bool   evar_isPtr(evar v);
  *
  *  evar value get
  *
+ * @note:
+ *   those APIs never make a dup of internal data
+ *
  * @return:
  *   return EVAR_NAV or 0 if type not match or idx can not be found
  *
@@ -174,7 +177,8 @@ cptr evar_iValR(evar v, uint idx);      // Returns the rawp  hold by item if exi
 uint evar_iLenS(evar v, uint idx);      // Returns the len        of item if exist and type matchs E_STR
 uint evar_iLenR(evar v, uint idx);      // Returns the len        of item if exist and type matchs E_RAW
 
-#define evar_iValp(v, idx)   __evarp_iValp(&(v), idx)  // Returns the addr of specific elem
+// it exposed the Low-leve cache, be careful by using it
+#define evar_iElem(v, idx)   __evarp_iElem(&(v), idx)   // Returns the addr of specific elem
 
 /** -----------------------------------------------------
  *
@@ -198,7 +202,8 @@ bool __evarp_iSetS(evarp vp, uint idx, constr str);
 bool __evarp_iSetP(evarp vp, uint idx, conptr ptr);
 bool __evarp_iSetR(evarp vp, uint idx, evar   raw);
 
-eval*__evarp_iValp (evarp vp, uint idx);
+
+eval*__evarp_iElem (evarp vp, uint idx);
 uint __evarp_free (evarp vp);
 
 

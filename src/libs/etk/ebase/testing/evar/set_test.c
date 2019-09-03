@@ -53,10 +53,7 @@ static int set_test_case2()
 
         evar_iSetV(v, i, EVAR_USER(&data, sizeof(ds)));
 
-        ds* p = evar_i(v, i).v.p;
-
-        eexpect_ptr(evar_iValp(v, i), p);
-        eexpect_0(memcmp(p, &data, sizeof (ds)));
+        eexpect_0(memcmp(evar_iElem(v, i), &data, sizeof (ds)));
     }
 
     evar_free(v);

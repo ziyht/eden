@@ -134,8 +134,8 @@ typedef union eval_s{
 
     cptr     p, pa[1], * pp;
     cstr     s, sa[1], * sp;
-    char     c, ca[1], * cp;        // same as i8
-    char        r [1], * rp;        // same as i8, but define a new type to handle raw data
+    char     c, ca[8], * cp;        // same as i8
+    char        r [8], * rp;        // same as i8, but define a new type to handle raw data
 
     conptr   C_p, C_pa[1], * C_pp;  // const ver
     constr   C_s, C_sa[1], * C_sp;  // const ver

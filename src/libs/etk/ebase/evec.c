@@ -148,7 +148,7 @@ typedef struct evec_s
 
 static void __split_init(_split s, int need_rooms, int esize)
 {
-    if(need_rooms * esize < 8)
+    if(esize && need_rooms * esize < 8)
     {
         need_rooms = pow2gt(8 / esize);
     }
@@ -619,7 +619,7 @@ evec   evec_new2(etypev type, u16 esize, uint cap)
 {
     static const u8 _size_map[] = __EVAR_ITEM_LEN_MAP;
 
-    if(type == E_NAV)
+    if(type == E_NAV || type == E_SIG)
         return 0;
 
     if(type < E_USER)
@@ -944,7 +944,7 @@ static bool __evec_addV(evec v, uint idx, evar var)
 
     if(v_type >= E_USER)
     {
-        return __evec_addB(v, idx, evar_iValp(var, 0)->r, var.esize, evar_cnt(var));
+        return __evec_addB(v, idx, evar_iElem(var, 0)->r, var.esize, evar_cnt(var));
     }
 
     switch(v_type)
@@ -1062,9 +1062,17 @@ static evar __evec_take_vars(evec v, i64 idx, uint cnt)
         var = evar_gen(_v_type(v), cnt, _v_esize(v));
 
         if(cnt == 1)
-            evar_iSetE(var, 0, EVAR_S(_split_pval(p.s, p.pos).s));
+        {
+            switch (_v_esize(v)) {
+                case 1 : evar_iElem(var, 0)->i8  = _split_pval(p.s, p.pos).i8 ; break;
+                case 2 : evar_iElem(var, 0)->i16 = _split_pval(p.s, p.pos).i16; break;
+                case 4 : evar_iElem(var, 0)->i32 = _split_pval(p.s, p.pos).i32; break;
+                case 8 : evar_iElem(var, 0)->i64 = _split_pval(p.s, p.pos).i64; break;
+                default: memcpy(evar_iElem(var, 0), _split_pval(p.s, p.pos).r, _v_esize(v)); break;
+            }
+        }
         else
-            __split_copy_rooms(&v->s, &p, evar_iValp(var, 0)->r);
+            __split_copy_rooms(&v->s, &p, evar_iElem(var, 0)->r);
     }
 
     //! free it from split

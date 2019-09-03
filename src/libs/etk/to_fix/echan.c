@@ -108,7 +108,7 @@ static __always_inline int __chan_init_channel(echan c, etypev type, uint cap)
 
     if(cap)
     {
-        if(type == E_NAV)
+        if(type == E_SIG)
         {
             // do nothing, using chan->d.sigs
         }
@@ -153,7 +153,7 @@ void echan_free(echan chan)
 
     echan_close(chan);
 
-    if(chan->type && chan->cap)
+    if(chan->type != E_SIG && chan->cap)
     {
         evec_free(chan->d.chan);
     }
