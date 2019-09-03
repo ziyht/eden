@@ -629,11 +629,11 @@ evar echan_timeRecvPs  (echan chan, uint cnt, int timeout) { evar var = EVAR_PTR
 evar echan_timeRecvVs  (echan chan, uint cnt, int timeout) { evar var = EVAR_ALL_C(cnt); return __echan_recv_dispatch(chan, timeout, &var) ? var : EVAR_NAV; }
 uint echan_timeRecvSigs(echan chan, uint cnt, int timeout) { evar var = EVAR_SIG_C(cnt); return __echan_recv_dispatch(chan, timeout, &var) ? cnt : 0; }
 
-#define _RECV_ALL 0x01
+#define _RECV_ALL 0x10
 
-evar echan_recvAll    (echan chan)              { evar var = EVAR_ALL_C(1); var.__ &= _RECV_ALL; if(__echan_recv_dispatch(chan,      -1, &var)) { var.__ = 0; return var; } return EVAR_NAV;}
-evar echan_tryRecvAll (echan chan)              { evar var = EVAR_ALL_C(1); var.__ &= _RECV_ALL; if(__echan_recv_dispatch(chan,       0, &var)) { var.__ = 0; return var; } return EVAR_NAV;}
-evar echan_timeRecvAll(echan chan, int timeout) { evar var = EVAR_ALL_C(1); var.__ &= _RECV_ALL; if(__echan_recv_dispatch(chan, timeout, &var)) { var.__ = 0; return var; } return EVAR_NAV;}
+evar echan_recvAll    (echan chan)              { evar var = EVAR_ALL_C(1); var.__ |= _RECV_ALL; if(__echan_recv_dispatch(chan,      -1, &var)) { return var; } return EVAR_NAV;}
+evar echan_tryRecvAll (echan chan)              { evar var = EVAR_ALL_C(1); var.__ |= _RECV_ALL; if(__echan_recv_dispatch(chan,       0, &var)) { return var; } return EVAR_NAV;}
+evar echan_timeRecvAll(echan chan, int timeout) { evar var = EVAR_ALL_C(1); var.__ |= _RECV_ALL; if(__echan_recv_dispatch(chan, timeout, &var)) { return var; } return EVAR_NAV;}
 
 static int __echan_time_recv_sigs_buffered  (echan c, int timeout, evarp varp);
 static int __echan_time_recv_sigs_unbuffered(echan c, int timeout, evarp varp);
@@ -740,7 +740,12 @@ static int __echan_time_recv_sigs_unbuffered(echan c, int timeout, evarp varp)
     _c_checkopened_mr(c);
 
     if(varp->__ & _RECV_ALL)
+    {
         varp->cnt = c->d.sigs;
+
+        if(varp->cnt == 0)
+            varp->cnt = 1;
+    }
 
     while( 1 )
     {
@@ -796,7 +801,12 @@ static int __echan_time_recv_chan_buffered(echan c, int timeout, evarp varp)
     _c_checkopened_m(c);
 
     if(varp->__ & _RECV_ALL)
+    {
         varp->cnt = evec_len(c->d.chan);
+
+        if(varp->cnt == 0)
+            varp->cnt = 1;
+    }
 
     while(1)
     {

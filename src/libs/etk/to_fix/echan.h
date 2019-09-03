@@ -162,7 +162,7 @@ evar echan_timeRecvPs  (echan chan, uint cnt, int timeout);
 evar echan_timeRecvVs  (echan chan, uint cnt, int timeout);
 uint echan_timeRecvSigs(echan chan, uint cnt, int timeout);
 
-evar echan_recvAll    (echan chan);
+evar echan_recvAll    (echan chan);                 // try recv all the msgs in chan, if not have, blocking
 evar echan_tryRecvAll (echan chan);
 evar echan_timeRecvAll(echan chan, int timeout);
 
