@@ -56,7 +56,6 @@ typedef struct echan_s
     union {
         evec        chan;
         u64         sigs;
-        evar        var;
     }           d;
 
 }echan_t;
@@ -106,32 +105,23 @@ static __always_inline int __chan_init_channel(echan c, etypev type, uint cap)
     c->type = type;
     c->cap  = cap;
 
-    if(cap)
+    if(cap == 0)
+        cap = 1;
+
+    if(type == E_SIG)
     {
-        if(type == E_SIG)
-        {
-            // do nothing, using chan->d.sigs
-        }
-        else if(type < E_USER)
-        {
-            c->d.chan = evec_new2(type, 0, cap);
-        }
-        else
-        {
-            c->d.chan = evec_new2(E_USER, sizeof(evar), cap);
-        }
+        // do nothing, using chan->d.sigs
+    }
+    else if(type < E_USER)
+    {
+        c->d.chan = evec_new2(type, 0, cap);
     }
     else
     {
-        //! using chan->d.val to store data
+        c->d.chan = evec_new2(E_USER, sizeof(evar), cap);
     }
 
     return 1;
-
-//err:
-//    __chan_uninit_locker(c);
-
-//    return 0;
 }
 
 echan echan_new (etypev type, uint cap)
@@ -153,7 +143,7 @@ void echan_free(echan chan)
 
     echan_close(chan);
 
-    if(chan->type != E_SIG && chan->cap)
+    if(chan->type != E_SIG)
     {
         evec_free(chan->d.chan);
     }
@@ -553,7 +543,7 @@ static bool __echan_time_send_chan_unbuffered(echan c, int timeout, evarp vp)
 
     _c_checkopened_mw(c);
 
-    c->d.var = *vp;
+    evec_appdV(c->d.chan, *vp);
 
     while(1)
     {
@@ -861,10 +851,9 @@ static int __echan_time_recv_chan_unbuffered(echan c, int timeout, evarp varp)
 
     while (1)
     {
-        if(c->w_waiting)
+        if(c->w_waiting && evec_len(c->d.chan))
         {
-            *varp    = c->d.var;
-            c->d.var = EVAR_NAV;
+            *varp = evec_takeH(c->d.chan);
 
             // Signal waiting writer.
             econd_one(c->w_cond);

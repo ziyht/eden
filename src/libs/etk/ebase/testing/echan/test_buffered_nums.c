@@ -53,7 +53,7 @@ static int test_buffered_sendNums(etypev t)
         c = echan_new(t, 10);
 
         wait_ms = 0;
-        recv_cnt = 1;
+        recv_cnt = 4;
 
         ethread_init(th, _recv_num, c);
 

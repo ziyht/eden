@@ -40,6 +40,7 @@ ETestAddTestSet(echan
             test_buffered_strs.c
             test_unbuffered_sigs.c
             test_unbuffered_nums.c  # include E_PTR
+            test_unbuffered_strs.c
 
 
     DEPENDS -lpthread|LINUX
