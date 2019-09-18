@@ -12,14 +12,14 @@ int __cmp_acs(eobj a, eobj b, eval prvt)
 {
     eexpect_eq(prvt.i64, CHECK_VAL);
 
-    return EOBJ_VALI(a) - EOBJ_VALI(b);
+    return (int)(EOBJ_VALI(a) - EOBJ_VALI(b));
 }
 
 int __cmp_des(eobj a, eobj b, eval prvt)
 {
     eexpect_eq(prvt.i64, CHECK_VAL);
 
-    return EOBJ_VALI(b) - EOBJ_VALI(a);
+    return (int)(EOBJ_VALI(b) - EOBJ_VALI(a));
 }
 
 static int test_sort_case1()
