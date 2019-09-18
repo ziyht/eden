@@ -24,7 +24,7 @@
 
 #include "elz4.h"
 
-#define ESTR_VERSION "elz4 1.0.2"       // fix bugs of elz4_decb()
+#define ESTR_VERSION "elz4 1.0.3"       // fix err mem write may happen in elz4f_decb2b()
 
 constr elz4_err(int code)
 {
@@ -508,7 +508,9 @@ i64 elz4f_decb2b(constr in, u64 inlen, cstr  dst, u64 dlen)
 
         if(next == 0)
         {
-            dst[len] = '\0';
+            if(len < dlen)
+                dst[len] = '\0';
+
             break;
         }
 
