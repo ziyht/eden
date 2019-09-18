@@ -123,13 +123,18 @@ set(KIT_DOWNLOADS                                               # step1: 下载
 #       [EXPECT_DIR            <path>  ]    # 期望的位置（相对路径），当某个目标a依赖本目标时，期望本目标的输出位置（相对于a的输出位置）
 #                                           #   此位置可被 目标a 重新设定
 #       )
+
+set(MY_LINK_DIR ${KIT_INSTALL_DIR}/lib)
+if(UNIX AND NOT APPLE)
+    set(MY_LINK_DIR "${MY_LINK_DIR}64")
+endif()
+
 EBuildExtAddExport(static
                     NAME                    nats_static
                     TYPE                    STATIC
                     INCLUDE_DIRS            ${KIT_INSTALL_DIR}/include
                                             ${KIT_SOURCE_DIR}/src
-                    LINK_DIRS               ${KIT_INSTALL_DIR}/lib64    # unix
-                                            ${KIT_INSTALL_DIR}/lib      # win
+                    LINK_DIRS               ${MY_LINK_DIR}
                     )
 
 # ==================================================
