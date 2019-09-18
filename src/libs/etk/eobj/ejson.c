@@ -20,7 +20,7 @@
 #endif
 
 #undef  EJSON_VERSION
-#define EJSON_VERSION "ejson 1.1.8"     // adjust api and fix sort logic
+#define EJSON_VERSION "ejson 1.1.9"     // fix bug of sort caused by keycmp func
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -189,12 +189,23 @@ static constr err_p;
 #define _r_keyS(r)              (r)->key.s
 #define _r_freekeyS(r)          _cur_freekeyS(_r_keyS(r))
 
+#if 1
 #define _cur_newkeyS(l)         emalloc(l + 1)
 #define _cur_dupkeyS            strdup
 #define _cur_cmpkeyS            strcmp
 #define _cur_ncmpkeyS           strncmp
 #define _cur_freekeyS           efree
 #define _cur_lenkeyS            strlen
+#define _cur_setKeyLen(s, l)
+#else
+#define _cur_newkeyS(l)         estr_new(l)
+#define _cur_dupkeyS            estr_dupS
+#define _cur_cmpkeyS            estr_cmpS
+#define _cur_ncmpkeyS           strncmp
+#define _cur_freekeyS           estr_free
+#define _cur_lenkeyS            estr_len
+#define _cur_setKeyLen(s, l)    _s_setLen(s, (l))
+#endif
 
 /// -------------------------- managers ---------------------------
 
@@ -494,7 +505,7 @@ ejson ejson_parseSEx(constr json, constr* _err, eopts opts)
 
         if(*obj_p == ':')
         {
-            cstr key = _cur_newkeyS(len);
+            cstr key = _cur_newkeyS(len); _cur_setKeyLen(key, len);
 
             if(!__parse_str(json, len, &err, key))
             {
@@ -608,7 +619,7 @@ static cstr __parse_KEY(constr* _src, constr* _err, __lstrip_cb lstrip)
 
     if(len >= 0)
     {
-        cstr s = _cur_newkeyS(len);
+        cstr s = _cur_newkeyS(len); _cur_setKeyLen(s, len);
 
         if(__parse_str(*_src, len, _err, s))
         {
@@ -786,7 +797,7 @@ static _ejsn __parse_STR(cstr* _key, constr* _src, constr* _err, __lstrip_cb lst
 
     len = (int)(end_p - *_src - 1);
 
-    is0_ret(k_v = _cur_newkeyS(len), 0);   // mem fail
+    is0_ret(k_v = _cur_newkeyS(len), 0);  _cur_setKeyLen(k_v, len);  // mem fail
 
 #if 0
     memcpy(k_v, s + 1, len);
@@ -2119,6 +2130,7 @@ static ejson __ejson_makeRoom_set_p(_ejsr r, eobj in)
                                 n = _n_newm(_eo_len(in)); _n_init(n);
 
                                 _n_setKeyS(n, _cur_newkeyS(klen)); memcpy(_n_keyS(n), key, klen); _n_keyS(n)[klen] = '\0';
+                                _cur_setKeyLen(_n_keyS(n), klen);
 
                                 _obj_link(r, n, &l);
                             }
@@ -2187,6 +2199,7 @@ static ejson __ejson_makeRoom_set_p(_ejsr r, eobj in)
                             _n_newO(n); _obj_init(n);
 
                             _n_setKeyS(n, _cur_newkeyS(klen)); memcpy(_n_keyS(n), key, klen); _n_keyS(n)[klen] = '\0';
+                            _cur_setKeyLen(_n_keyS(n), klen);
 
                             _obj_link(r, n, &l);
                         }
@@ -2582,6 +2595,7 @@ i64 __ejson_makeRoom_counter_p(_ejsr r, constr path, i64 val)
                             {
                                 _n_newI(n, val);
                                 _n_setKeyS(n, _cur_newkeyS(klen)); memcpy(_n_keyS(n), key, klen); _n_keyS(n)[klen] = '\0';
+                                _cur_setKeyLen(_n_keyS(n), klen);
                                 _obj_link(r, n, &l);
 
                                 return val;
@@ -2634,7 +2648,7 @@ i64 __ejson_makeRoom_counter_p(_ejsr r, constr path, i64 val)
                             _n_newO(n); _obj_init(n);
 
                             _n_setKeyS(n, _cur_newkeyS(klen)); memcpy(_n_keyS(n), key, klen); _n_keyS(n)[klen] = '\0';
-
+                            _cur_setKeyLen(_n_keyS(n), klen);
                             _obj_link(r, n, &l);
                         }
 
@@ -2809,14 +2823,14 @@ over:
 
 int __KEYS_ACS(eobj a, eobj b)
 {
-    cstr k_a, k_b;
+    cstr k_a, k_b; int ret;
 
     k_a = _eo_keyS(a);
     k_b = _eo_keyS(b);
 
     if(k_a)
     {
-        if(k_b) return estr_cmp(k_a, k_b);
+        if(k_b) return ret = _cur_cmpkeyS(k_a, k_b);
         else    return 1;
     }
 
@@ -2832,7 +2846,7 @@ int __KEYS_DES(eobj a, eobj b)
 
     if(k_a)
     {
-        if(k_b) return -estr_cmp(k_a, k_b);
+        if(k_b) return -_cur_cmpkeyS(k_a, k_b);
         else    return -1;
     }
 
@@ -3103,7 +3117,7 @@ static int _dictKeyIndexS(dict d, const void* key)
         /* Search if this slot does not already contain the given key */
         he = d->ht[table].table[idx];
         while(he) {
-            if ( 0 == _cur_cmpkeyS(key, _n_keyS(he)) )
+            if ( 0 == _cur_cmpkeyS(_n_keyS(he), (cstr)key) )
                 return -1;
             he = _n_dnext(he);
         }
@@ -3179,7 +3193,7 @@ static _ejsn _dict_findS(dict d, constr k)
         idx = h & d->ht[table].sizemask;
         he = d->ht[table].table[idx];
         while(he) {
-            if ( !_cur_cmpkeyS(k, _n_keyS(he)) )
+            if ( 0 == _cur_cmpkeyS(_n_keyS(he), (cstr)k) )
                 return he;
             he = _n_dnext(he);
         }
@@ -3237,7 +3251,7 @@ static _ejsn _dict_findS_ex(dict d, constr k, bool rm)
         he = d->ht[table].table[idx];
         prevHe = NULL;
         while(he) {
-            if (!_cur_cmpkeyS(k, _n_keyS(he))) {
+            if( 0 == _cur_cmpkeyS(_n_keyS(he), (cstr)k) ) {
                 if(rm)
                 {
                     /* Unlink the element from the list */
@@ -3355,7 +3369,7 @@ static int _dict_getSL_ex(dict d, constr k, L l)
             he = d->ht[table].table[idx];
             l->_prev = &d->ht[table].table[idx];
             while(he) {
-                if ( 0 == _cur_cmpkeyS(k, _n_keyS(he)) )
+                if ( 0 == _cur_cmpkeyS(_n_keyS(he), (cstr)k) )
                 {
                     ht = &d->ht[table];
                     l->_pos  = &ht->table[idx];
@@ -3393,7 +3407,7 @@ static _ejsn _dict_del(dict d, _ejsn del)
         he = d->ht[table].table[idx];
         prevHe = NULL;
         while(he) {
-            if (!_cur_cmpkeyS(_n_keyS(del), _n_keyS(he))) {
+            if ( 0 == _cur_cmpkeyS(_n_keyS(he), _n_keyS(del)) ) {
                 if(he != del)   return NULL;    // not match
 
                 /* Unlink the element from the list */
