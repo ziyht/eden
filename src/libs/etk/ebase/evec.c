@@ -27,7 +27,7 @@
 
 #include "evec.h"
 
-#define EVEC_VERSION "evec 1.0.5"       // fix evec_take APIs
+#define EVEC_VERSION "evec 1.0.6"       // fix evec_i() for it may not correct if not filled with full 64bit value in darwin
 
 #define _EVEC_CHECK 1   // debug using
 
@@ -146,11 +146,11 @@ typedef struct evec_s
 
 #define EVEC_MAX_PREALLOC   (1024 * 1024)       // 1M
 
-static void __split_init(_split s, int need_rooms, int esize)
+static void __split_init(_split s, uint need_rooms, int esize)
 {
     if(esize && need_rooms * esize < 8)
     {
-        need_rooms = pow2gt(8 / esize);
+        need_rooms = (uint)pow2gt(8 / esize);
     }
 
     _split_cap(  s) = need_rooms;
@@ -229,11 +229,15 @@ static uint __split_expand(_split s, int need_rooms, _pos p)
     }
     _split_base(s) = new_base;
 
-    need_rooms = new_space / _split_esize(s) - _split_cap (s);    // record appd rooms
+    need_rooms = (uint)(new_space / _split_esize(s)) - _split_cap (s);    // record appd rooms
+
+    //! clear new rooms
+    memset(_split_eptr(s), 0, _split_msize(s, need_rooms));
+
     if( _split_rpos(s) >  _split_cap (s) )
         __split_adjust_data(s, need_rooms, p);
 
-    _split_cap (s) = new_space / _split_esize(s);
+    _split_cap (s) = (uint)(new_space / _split_esize(s));
 
     return need_rooms;
 }
@@ -974,9 +978,9 @@ do                                                                              
         case E_RAW : return _split_ival(&v->s, idx);                                \
         case E_USER: return EVAL_P(_split_ival(&v->s, idx).r);                      \
         default    : switch (v->s.esize) {                                          \
-                        case  1: return EVAL_I8 (_split_ival(&v->s, idx).i8 );      \
-                        case  2: return EVAL_I16(_split_ival(&v->s, idx).i16);      \
-                        case  4: return EVAL_I32(_split_ival(&v->s, idx).i32);      \
+                        case  1: return EVAL_I64(_split_ival(&v->s, idx).i8 );      \
+                        case  2: return EVAL_I64(_split_ival(&v->s, idx).i16);      \
+                        case  4: return EVAL_I64(_split_ival(&v->s, idx).i32);      \
                         case  8: return EVAL_I64(_split_ival(&v->s, idx).i64);      \
                                                                                     \
                         default: return EVAL_0;     /*this should not happen*/      \
@@ -1046,15 +1050,15 @@ static evar __evec_take_vars(evec v, i64 idx, uint cnt)
     is0_ret(_v_cnt(v), EVAR_NAV);
 
     if(idx < 0) idx += _v_cnt(v);
-    if(idx < 0) idx = 0;
+    if(idx < 0) return EVAR_NAV;
 
     if(_v_cnt(v) - idx < cnt )
-        cnt = _v_cnt(v) - idx;
+        cnt = (uint)(_v_cnt(v) - idx);
 
     //! find it
     p.v   = v;
     p.s   = &v->s;
-    p.pos = _split_fpos(p.s) + idx;
+    p.pos = (uint)(_split_fpos(p.s) + idx);
     p.cnt = cnt;
 
     //! copy vals to var to return

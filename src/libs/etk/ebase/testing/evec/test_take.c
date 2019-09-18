@@ -1,4 +1,4 @@
-/**
+﻿/**
 * this file is create by subsystem 'ETest' from EMake framework
 */
 
@@ -14,7 +14,7 @@ static int test_take_num(etypev t)
 
     for(int i = 0; i < left; i++)
     {
-        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I8(i)));
+        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I64(i)));
 
         i64 val = evec_i(v, i).i64;
 
@@ -22,7 +22,7 @@ static int test_take_num(etypev t)
     }
     eexpect_eq(evec_len(v), 100);
 
-    int s = 0, e = 99;
+    i64 s = 0, e = 99;
 
     {
         int cnt = 10;
@@ -207,12 +207,12 @@ static evec prepare_test_vec(etypev t)
 
     for(int i = 0; i < 96; i++)
     {
-        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I8(i)));
+        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I64(i)));
     }
 
     for(int i = 0; i < 32; i++)
     {
-        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I8(i)));
+        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I64(i)));
     }
 
     evar takes = evec_takeHs(v, 96);
@@ -220,7 +220,7 @@ static evec prepare_test_vec(etypev t)
 
     for(int i = 0; i < 32; i++)
     {
-        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I8(i + 32)));
+        evec_appdV(v, __EVAR_MK(t, evec_esize(v), 0, EVAL_I64(i + 32)));
     }
 
     return v;
