@@ -168,7 +168,7 @@ static constr _llog_basename(constr path){static constr slash; if (slash) {retur
  *  math tools
  *
  */
-static __always_inline int pow2gt(int x)	{	--x;	x|=x>>1;	x|=x>>2;	x|=x>>4;	x|=x>>8;	x|=x>>16;	return x+1;	}
+static __always_inline i64 pow2gt(i64 x)	{	--x;	x|=x>>1;	x|=x>>2;	x|=x>>4;	x|=x>>8;	x|=x>>16;	x|=x>>32; return x+1;	}
 
 /** ------------------------------------------------------
  *

@@ -17,6 +17,10 @@
 #define _GNU_SOURCE
 #define __USE_XOPEN
 
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+
 #include <time.h>
 #include <stdlib.h>
 #include <signal.h>

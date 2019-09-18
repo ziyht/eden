@@ -17,8 +17,6 @@
 #ifndef __ECHAN_H__
 #define __ECHAN_H__
 
-#define ECHAN_VERSION "echan 1.2.0"      // add time recv APIs, note: can using but not perfect
-
 #include "etype.h"
 #include "evar.h"
 #include "estr.h"

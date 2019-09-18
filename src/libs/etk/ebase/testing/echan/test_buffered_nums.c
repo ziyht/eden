@@ -1,4 +1,4 @@
-/**
+﻿/**
 * this file is create by subsystem 'ETest' from EMake framework
 */
 
@@ -94,7 +94,7 @@ static int test_buffered_sendNums(etypev t)
     {
         c = echan_new(t, 2);
 
-        wait_ms  = 500;
+        wait_ms  = 100;
         recv_cnt = 4;
 
         ethread_init(th, _recv_num, c);
@@ -119,7 +119,7 @@ static int test_buffered_sendNums(etypev t)
 
         ethread_init(th, _recv_num, c);
 
-        usleep(500 * 1000);
+        usleep(100 * 1000);
 
         ret = echan_sendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(0)));
         ret = echan_sendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(1)));
@@ -136,7 +136,7 @@ static int test_buffered_sendNums(etypev t)
     {
         c = echan_new(t, 2);
 
-        wait_ms  = 500;
+        wait_ms  = 100;
         recv_cnt = 4;
 
         ethread_init(th, _recv_all, c);
@@ -161,7 +161,7 @@ static int test_buffered_sendNums(etypev t)
 
         ethread_init(th, _recv_all, c);
 
-        usleep(500 * 1000);
+        usleep(100 * 1000);
 
         ret = echan_sendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(0)));
         ret = echan_sendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(1)));
@@ -204,13 +204,13 @@ static int test_buffered_timeSendNums(etypev t)
     c = echan_new(t, 1);
 
     e_ticker_ms(&ticker);
-    ret = echan_timeSendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(2)), 500);
+    ret = echan_timeSendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(2)), 100);
     eexpect_eq(ret, true);
     eexpect_lt(e_ticker_ms(&ticker), 10);
 
-    ret = echan_timeSendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(2)), 500);
+    ret = echan_timeSendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(2)), 100);
     eexpect_eq(ret, false);
-    eexpect_gt(e_ticker_ms(&ticker), 400);
+    eexpect_gt(e_ticker_ms(&ticker), 40);
 
     echan_free(c);
 
@@ -280,16 +280,16 @@ static int test_unbuffered_timeRecvNums(etypev t)
         eexpect_eq(ret, true);
 
         e_ticker_ms(&ticker);
-        var = echan_timeRecvV(c, 500);
+        var = echan_timeRecvV(c, 100);
         eexpect_ne(var.type, E_NAV);
         eexpect_eq(var.v.i64, 1);
         eexpect_lt(e_ticker_ms(&ticker) , 10);
 
         e_ticker_ms(&ticker);
-        var = echan_timeRecvV(c, 500);
+        var = echan_timeRecvV(c, 100);
         eexpect_eq(var.type, E_NAV);
         eexpect_eq(var.v.i64, 0);
-        eexpect_gt(e_ticker_ms(&ticker) , 400);
+        eexpect_gt(e_ticker_ms(&ticker) , 40);
 
         echan_free(c);
     }
@@ -303,17 +303,17 @@ static int test_unbuffered_timeRecvNums(etypev t)
         ret = echan_sendV(c, __EVAR_MK(t, 1, 1, EVAL_I8(3))); eexpect_eq(ret, true);
 
         e_ticker_ms(&ticker);
-        var = echan_timeRecvAll(c, 500);
+        var = echan_timeRecvAll(c, 100);
         eexpect_eq(var.type, t);
         eexpect_eq(var.cnt, 4);
         eexpect_lt(e_ticker_ms(&ticker) , 10);
         evar_free(var);
 
         e_ticker_ms(&ticker);
-        var = echan_timeRecvAll(c, 500);
+        var = echan_timeRecvAll(c, 100);
         eexpect_eq(var.type, E_NAV);
         eexpect_eq(var.cnt, 0);
-        eexpect_gt(e_ticker_ms(&ticker) , 400);
+        eexpect_gt(e_ticker_ms(&ticker) , 40);
 
         echan_free(c);
     }

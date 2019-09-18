@@ -1,6 +1,8 @@
 #ifndef __EERR_H__
 #define __EERR_H__
 
+#include <string.h>
+
 #include "etype.h"
 #include "eerrno.h"
 
@@ -32,5 +34,48 @@ static char   __g_err_buf__[1024];
 #define _ERRSTR_ALLOC(tag)      "alloc faild for" #tag
 #define _ERRSTR_KEYINPRM(key)   "key \"%s\" in param is already exist in root obj", key
 #define _ERRSTR_KEYINOBJ(key)   "key \"%s\" in obj is already exist in root obj", key
+
+static void eerr_fatal(int errorno, constr syscall) {
+
+#ifdef _WIN32
+
+    char* buf = NULL;
+    const char* errmsg;
+
+    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                   FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorno,
+                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buf, 0, NULL);
+
+    if (buf) {
+        errmsg = buf;
+    } else {
+        errmsg = "Unknown error";
+    }
+
+    /* FormatMessage messages include a newline character already, so don't add
+   * another. */
+    if (syscall) {
+        fprintf(stderr, "%s: (%d) %s", syscall, errorno, errmsg);
+    } else {
+        fprintf(stderr, "(%d) %s", errorno, errmsg);
+    }
+
+    if (buf) {
+        LocalFree(buf);
+    }
+
+    DebugBreak();
+#else
+
+    if (syscall) {
+        fprintf(stderr, "%s: (%d) %s", syscall, errorno, strerror(errorno));
+    } else {
+        fprintf(stderr, "(%d) %s", errorno, strerror(errorno));
+    }
+
+#endif
+
+    abort();
+}
 
 #endif

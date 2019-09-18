@@ -326,10 +326,10 @@ evar evar_i    (evar v, uint idx)
                                           : *vp;
 
         default    : switch (vp->esize) {
-                        case  1: return (evar){0,vp->type, vp->esize, 1, EVAL_I8 (_vp_ivalp(vp, idx)->i8 ) };
-                        case  2: return (evar){0,vp->type, vp->esize, 1, EVAL_I16(_vp_ivalp(vp, idx)->i16) };
-                        case  4: return (evar){0,vp->type, vp->esize, 1, EVAL_I32(_vp_ivalp(vp, idx)->i32) };
-                        case  8: return (evar){0,vp->type, vp->esize, 1, EVAL_I64(_vp_ivalp(vp, idx)->i64) };
+                        case  1: return (evar){0, vp->type, vp->esize, 1, EVAL_I64(_vp_ivalp(vp, idx)->i8 ) };
+                        case  2: return (evar){0, vp->type, vp->esize, 1, EVAL_I64(_vp_ivalp(vp, idx)->i16) };
+                        case  4: return (evar){0, vp->type, vp->esize, 1, EVAL_I64(_vp_ivalp(vp, idx)->i32) };
+                        case  8: return (evar){0, vp->type, vp->esize, 1, EVAL_I64(_vp_ivalp(vp, idx)->i64) };
 
                         default: return EVAR_NAV;     // this should not happen
                      }

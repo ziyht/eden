@@ -49,7 +49,7 @@ typedef struct task_s{
     ert_cb    oprt;
     ert_cb    after_oprt;
     void*     data;
-}task_t;
+}_task_t;
 
 typedef struct thread_pool_s{
     volatile int status;

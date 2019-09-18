@@ -8,7 +8,8 @@
 #include "echan.h"
 #include "etime.h"
 
-static int wait_ms;
+static int  wait_ms;
+static uint recv_sig;
 
 static void* _recv_sig(void*d)
 {
@@ -16,9 +17,20 @@ static void* _recv_sig(void*d)
 
     usleep(wait_ms * 1000);
 
-    int s = echan_recvSig(c);
+    uint s = echan_recvSig(c);
 
-    return s ? (void*)1 : 0;
+    return s == recv_sig ? (void*)1 : 0;
+}
+
+static void* _recv_all(void*d)
+{
+    echan c = d;
+
+    usleep(wait_ms * 1000);
+
+    evar sigs = echan_recvAll(c);
+
+    return (sigs.type == E_SIG && sigs.cnt == recv_sig) ? (void*)1 : 0;
 }
 
 static int test_unbuffered_sendSigs()
@@ -28,7 +40,8 @@ static int test_unbuffered_sendSigs()
     c = echan_new(E_SIG, 0);
 
     {
-        wait_ms = 500;
+        wait_ms  = 100;
+        recv_sig = 1;
 
         ethread_init(th, _recv_sig, c);
 
@@ -40,11 +53,40 @@ static int test_unbuffered_sendSigs()
     }
 
     {
-        wait_ms = 0;
+        wait_ms  = 0;
+        recv_sig = 1;
 
         ethread_init(th, _recv_sig, c);
 
-        usleep(500 * 1000);
+        usleep(100 * 1000);
+
+        ret = echan_sendSig(c, 1);
+        eexpect_eq(ret, true);
+
+        ethread_join_ex(th, thread_ret);
+        eexpect_ptr(thread_ret, (void*)1);
+    }
+
+    {
+        wait_ms  = 100;
+        recv_sig = 1;
+
+        ethread_init(th, _recv_all, c);
+
+        ret = echan_sendSig(c, 1);
+        eexpect_eq(ret, true);
+
+        ethread_join_ex(th, thread_ret);
+        eexpect_ptr(thread_ret, (void*)1);
+    }
+
+    {
+        wait_ms  = 0;
+        recv_sig = 1;
+
+        ethread_init(th, _recv_all, c);
+
+        usleep(100 * 1000);
 
         ret = echan_sendSig(c, 1);
         eexpect_eq(ret, true);
@@ -105,7 +147,7 @@ static int test_unbuffered_recvSigs()
     c = echan_new(E_SIG, 0);
 
     {
-        wait_ms = 500;
+        wait_ms = 100;
 
         ethread_init(th, _send_sig, c);
 
@@ -121,7 +163,7 @@ static int test_unbuffered_recvSigs()
 
         ethread_init(th, _send_sig, c);
 
-        usleep(500 * 1000);
+        usleep(100 * 1000);
 
         ret = echan_recvSig(c);
         eexpect_eq(ret, 1);
@@ -137,28 +179,101 @@ static int test_unbuffered_recvSigs()
 
 static int test_unbuffered_tryRecvSigs()
 {
-    echan c; int ret;
+    echan c; int ret; ethread_t th; void* thread_ret; evar var;
 
-    c = echan_new(E_SIG, 0);
+    {
+        c = echan_new(E_SIG, 0);
 
-    ret = echan_tryRecvSig(c);
-    eexpect_eq(ret, false);
+        wait_ms = 0;
+        ethread_init(th, _send_sig, c);
 
-    echan_free(c);
+        usleep(100 * 1000);
+
+        ret = echan_tryRecvSig(c);
+        eexpect_eq(ret, 1);
+
+        ret = echan_tryRecvSig(c);
+        eexpect_eq(ret, false);
+
+        ethread_join_ex(th, thread_ret);
+        eexpect_ptr(thread_ret, (void*)1);
+
+        echan_free(c);
+    }
+
+    {
+        c = echan_new(E_SIG, 0);
+
+        wait_ms = 0;
+        ethread_init(th, _send_sig, c);
+
+        usleep(100 * 1000);
+
+        var = echan_tryRecvAll(c);
+        eexpect_eq(var.type, E_SIG);
+        eexpect_eq(var.cnt , 1);
+
+        var = echan_tryRecvAll(c);
+        eexpect_eq(var.type, E_NAV);
+        eexpect_eq(var.cnt , 0);
+
+        ethread_join_ex(th, thread_ret);
+        eexpect_ptr(thread_ret, (void*)1);
+
+        echan_free(c);
+    }
+
 
     return ETEST_OK;
 }
 
 static int test_unbuffered_timeRecvSigs()
 {
-    echan c; int ret;
+    echan c; int ret; i64 ticker; ethread_t th; void* thread_ret; evar var;
 
-    c = echan_new(E_SIG, 0);
+    {
+        c = echan_new(E_SIG, 0);
 
-    ret = echan_timeRecvSig(c, 500);
-    eexpect_eq(ret, false);
+        wait_ms = 0;
+        ethread_init(th, _send_sig, c);
 
-    echan_free(c);
+        e_ticker_ms(&ticker);
+        ret = echan_timeRecvSig(c, 100);
+        eexpect_eq(ret , 1);
+        eexpect_le(e_ticker_ms(&ticker), 10);
+
+        ret = echan_timeRecvSig(c, 100);
+        eexpect_eq(ret , 0);
+        eexpect_ge(e_ticker_ms(&ticker), 50);
+
+        ethread_join_ex(th, thread_ret);
+        eexpect_ptr(thread_ret, (void*)1);
+
+        echan_free(c);
+    }
+
+    {
+        c = echan_new(E_SIG, 0);
+
+        wait_ms = 0;
+        ethread_init(th, _send_sig, c);
+
+        e_ticker_ms(&ticker);
+        var = echan_timeRecvAll(c, 100);
+        eexpect_eq(var.type, E_SIG);
+        eexpect_eq(var.cnt , 1);
+        eexpect_le(e_ticker_ms(&ticker), 10);
+
+        var = echan_timeRecvAll(c, 100);
+        eexpect_eq(var.type, E_NAV);
+        eexpect_eq(var.cnt , 0);
+        eexpect_ge(e_ticker_ms(&ticker), 50);
+
+        ethread_join_ex(th, thread_ret);
+        eexpect_ptr(thread_ret, (void*)1);
+
+        echan_free(c);
+    }
 
     return ETEST_OK;
 }

@@ -23,6 +23,8 @@
 #include <mach/mach.h>
 #endif
 
+#define ECHAN_VERSION "echan 2.0.0"      // rebuild echan(95%), now can using it
+
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -55,7 +57,7 @@ typedef struct echan_s
     uint        cap;
     union {
         evec        chan;
-        u64         sigs;
+        u32         sigs;
     }           d;
 
 }echan_t;
@@ -148,12 +150,14 @@ void echan_free(echan chan)
         evec_free(chan->d.chan);
     }
 
+    econd_free (chan->r_cond);
+    econd_free (chan->w_cond);
+
     emutex_free(chan->w_mu);
     emutex_free(chan->r_mu);
 
     emutex_free(chan->m_mu);
-    econd_free (chan->r_cond);
-    econd_free (chan->w_cond);
+
     free(chan);
 }
 
@@ -186,8 +190,8 @@ int echan_close(echan chan)
             emutex_ulck(chan->m_mu);
             econd_all(chan->r_cond);
             econd_all(chan->w_cond);
-            emutex_lock(chan->m_mu);
             sleep(0);
+            emutex_lock(chan->m_mu);
         }
     }
     chan->status = _CLOSED;
@@ -442,22 +446,20 @@ static bool __echan_time_send_sigs_unbuffered(echan c, int timeout, evarp vp)
 
     while(1)
     {
-        if(!c->d.sigs)
+        if(vp->cnt)
         {
-            if(!vp->cnt)
+            if(!c->d.sigs)
             {
+                c->d.sigs = vp->cnt;
+                vp->cnt   = 0;
+
                 ret = 0;
-                break;
             }
-
-            c->d.sigs = vp->cnt;
-            vp->cnt   = 0;
-
-            if (c->r_waiting > 0)
-            {
-                // Signal waiting reader.
-                econd_one(c->r_cond);
-            }
+        }
+        else
+        {
+            ret = 0;
+            break;
         }
 
         if (ret == 0 && c->r_waiting > 0)
@@ -536,21 +538,37 @@ static bool __echan_time_send_chan_buffered(echan c, int timeout, evarp vp)
 
 static bool __echan_time_send_chan_unbuffered(echan c, int timeout, evarp vp)
 {
-    int ret;
+    int ret = 1;
 
     emutex_lock(c->w_mu);
     emutex_lock(c->m_mu);
 
     _c_checkopened_mw(c);
 
-    evec_appdV(c->d.chan, *vp);
-
     while(1)
     {
-        if (c->r_waiting > 0)
+        if(vp->cnt)
+        {
+            if(!evec_len(c->d.chan))
+            {
+                evec_appdV(c->d.chan, *vp);
+                vp->cnt = 0;
+
+                ret = 0;
+            }
+        }
+        else
+        {
+            ret = 0;
+            break;
+        }
+
+        if (ret == 0 && c->r_waiting > 0)
         {
             // Signal waiting reader.
             econd_one(c->r_cond);
+
+            break;
         }
 
         // Block until reader consumed chan->data.
@@ -559,9 +577,6 @@ static bool __echan_time_send_chan_unbuffered(echan c, int timeout, evarp vp)
         c->w_waiting--;
 
         _c_checkopened_mw(c);
-
-        if(ret == 0)
-            break;
 
         if(ret == ETIMEDOUT)
         {
@@ -665,21 +680,27 @@ static int __echan_time_recv_sigs_buffered(echan c, int timeout, evarp varp)
 {
     int ret = 1;
 
-    is1_ret(!varp->cnt, 0);
+    is1_exeret(!varp->cnt, *varp = EVAR_NAV, 0);
 
     emutex_lock(c->m_mu);
 
     _c_checkopened_m(c);
 
-    uint need;
-
-    if(varp->__ & _RECV_ALL) need = c->d.sigs;
-    else                     need = varp->cnt;
+    uint need = 0;
 
     while(1)
     {
         if(c->d.sigs)
         {
+            if(need == 0)       // init need
+            {
+                if(varp->__ & _RECV_ALL) need = varp->cnt = c->d.sigs;
+                else                     need = varp->cnt;
+
+                if(need == 0)
+                    need = 1;
+            }
+
             if(c->d.sigs >= need)
             {
                 c->d.sigs -= need;
@@ -699,6 +720,8 @@ static int __echan_time_recv_sigs_buffered(echan c, int timeout, evarp varp)
 
             if(need == 0)
             {
+                *varp = EVAR_SIG(varp->cnt);
+
                 ret = 0;
                 break;
             }
@@ -739,18 +762,11 @@ static int __echan_time_recv_sigs_unbuffered(echan c, int timeout, evarp varp)
 
     _c_checkopened_mr(c);
 
-    if(varp->__ & _RECV_ALL)
-    {
-        varp->cnt = c->d.sigs;
-
-        if(varp->cnt == 0)
-            varp->cnt = 1;
-    }
-
     while( 1 )
     {
-        if(c->w_waiting && varp->cnt == c->d.sigs)
+        if(c->w_waiting && c->d.sigs && (varp->__ & _RECV_ALL || varp->cnt == c->d.sigs))
         {
+            *varp = EVAR_SIG(c->d.sigs);
             c->d.sigs = 0;
 
             if(varp->cnt)
@@ -780,6 +796,7 @@ static int __echan_time_recv_sigs_unbuffered(echan c, int timeout, evarp varp)
         if(ret == ETIMEDOUT)
         {
             errno = ETIMEDOUT;
+
             break;
         }
     }
@@ -792,7 +809,7 @@ static int __echan_time_recv_sigs_unbuffered(echan c, int timeout, evarp varp)
 
 static int __echan_time_recv_chan_buffered(echan c, int timeout, evarp varp)
 {
-    int ret = 1;
+    uint need = 0; int ret = 1;
 
     is1_ret(varp->cnt > c->cap, 0);
 
@@ -800,16 +817,21 @@ static int __echan_time_recv_chan_buffered(echan c, int timeout, evarp varp)
 
     _c_checkopened_m(c);
 
-    if(varp->__ & _RECV_ALL)
-    {
-        varp->cnt = evec_len(c->d.chan);
-
-        if(varp->cnt == 0)
-            varp->cnt = 1;
-    }
-
     while(1)
     {
+        if(need == 0 && evec_len(c->d.chan))
+        {
+            if(varp->__ & _RECV_ALL)
+            {
+                varp->cnt = evec_len(c->d.chan);
+
+                if(varp->cnt == 0)
+                    varp->cnt = 1;
+            }
+
+            need = varp->cnt;
+        }
+
         if(evec_len(c->d.chan) >= varp->cnt)
         {
             *varp = evec_takeHs(c->d.chan, varp->cnt);
@@ -861,12 +883,15 @@ static int __echan_time_recv_chan_unbuffered(echan c, int timeout, evarp varp)
 
     while (1)
     {
-        if(c->w_waiting && evec_len(c->d.chan))
+        if(evec_len(c->d.chan))
         {
             *varp = evec_takeH(c->d.chan);
 
-            // Signal waiting writer.
-            econd_one(c->w_cond);
+            if(c->w_waiting)
+            {
+                // Signal waiting writer.
+                econd_one(c->w_cond);
+            }
 
             ret = 0;
 

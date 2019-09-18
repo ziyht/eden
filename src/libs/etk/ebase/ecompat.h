@@ -53,6 +53,7 @@ extern "C" {
 
 #if defined(_WIN32)
 #include <stdint.h>
+#include <winsock2.h>
 #include <Windows.h>
 //void usleep(int64_t microsecond);
 //void sleep(int64_t second);
@@ -68,7 +69,7 @@ extern "C" {
 #endif
 
 #define sleep(s)	Sleep((s) * 1000)
-#define usleep(us)  Sleep((us) / 1000 + (us) % 1000 > 500 ? 1 : 0)
+#define usleep(us)  Sleep((us) / 1000 + ((us) % 1000 > 500 ? 1 : 0))
 
 #include <io.h>
 
@@ -111,7 +112,9 @@ extern "C" {
 #define strcasecmp  _stricmp
 #define strncasecmp _strnicmp
 
-#define strlen(s)   ((uint)(strchr(s, '\0') - s))   // higher performance, maybe not check the character encoding
+#define strlen(s)   _strlen_a(s)   // higher performance, maybe not check the character encoding
+
+static inline unsigned int _strlen_a(const char* s){ return ((unsigned int)(strchr(s, '\0') - s)); }
 
 #define __MEMMEM_DECLARED
 void* memmem(const void *l, size_t l_len, const void *s, size_t s_len);
