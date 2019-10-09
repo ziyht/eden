@@ -78,7 +78,6 @@ EBuildAddFilesF(
 set(KIT_DEPENDS
     -lpthread|LINUX
     pthreads-win32::static|WIN32
-   # winpthreads::static|WIN32
     )
 
 
@@ -93,3 +92,5 @@ ETestAdd(testing/ethread  ON)
 ETestAdd(tutorial/ethread ON)
 ETestAdd(tutorial/echan   ON)
 ETestAdd(tutorial/estr    ON)
+
+ETestAdd(benchmark/echan  ON)

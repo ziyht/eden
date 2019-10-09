@@ -248,11 +248,13 @@ static void __ebench_man_exec_cases()
                 if(oprt->is_step)
                 {
                     printf("  (%*d/%*d)step: %s...", len, i, len, all, oprt->name); fflush(stdout);
+                    bench->oprvt = oprt->prvt;
                     oprt->oprt((ebench_p)bench);
                     printf(" ok\n");fflush(stdout);
 
                     if(i % ejson_len(bench->_oprts) == 0 && result)
-                        result->need_gap = 1;
+                        //result->need_gap = 1
+                                ;
 
                     continue;
                 }
