@@ -72,7 +72,9 @@ function(_AddSeparateKit TOP_KIT s_kit s_kit_dir)
 
     # -- 生成目标，并为目标创建相关属性
 
+    #EMakeInff("src: ${KIT_DEPENDS}")
     EBuildCheckDependsM(${TOP_KIT}::${s_kit} "${KIT_DEPENDS}")
+    #EMakeInff("sys: ${KIT_LIBRARIES_SYS}")
 
     EMakeSetTargetPropertyM(${TOP_KIT}::${s_kit} KIT_TYPE     VAR         Component)
     EMakeSetTargetPropertyM(${TOP_KIT}::${s_kit} HAVE         VAR         1)
@@ -81,14 +83,15 @@ function(_AddSeparateKit TOP_KIT s_kit s_kit_dir)
     EMakeSetTargetPropertyM(${TOP_KIT}::${s_kit} BELONG_TO    VAR         ${TOP_KIT})
     EMakeSetTargetPropertyM(${TOP_KIT}::${s_kit} NAME         VAR         ${s_kit})
 
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_SRCS            LIST_VAR ${KIT_SRCS}         APPEND_NO_DUP)
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_MOC_SRCS        LIST_VAR ${KIT_MOC_SRCS}     APPEND_NO_DUP)
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_UI_FORMS        LIST_VAR ${KIT_UI_FORMS}     APPEND_NO_DUP)
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_RESOURCES       LIST_VAR ${KIT_RESOURCES}    APPEND_NO_DUP)
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_DEPENDS         LIST_VAR ${KIT_DEPENDS}      APPEND_NO_DUP)
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_INCLUDE_DIRS    LIST_VAR ${s_kit_dir}        APPEND_NO_DUP)
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_INCLUDE_DIRS    LIST_VAR ${KIT_INCLUDE_DIRS} APPEND_NO_DUP)
-    EMakeSetTargetPropertyM(${TOP_KIT} KIT_LINK_DIRS       LIST_VAR ${KIT_LINK_DIRS}    APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_SRCS            LIST_VAR ${KIT_SRCS}          APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_MOC_SRCS        LIST_VAR ${KIT_MOC_SRCS}      APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_UI_FORMS        LIST_VAR ${KIT_UI_FORMS}      APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_RESOURCES       LIST_VAR ${KIT_RESOURCES}     APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_DEPENDS         LIST_VAR ${KIT_DEPENDS}       APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_LIBRARIES_SYS   LIST_VAR ${KIT_LIBRARIES_SYS} APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_INCLUDE_DIRS    LIST_VAR ${s_kit_dir}         APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_INCLUDE_DIRS    LIST_VAR ${KIT_INCLUDE_DIRS}  APPEND_NO_DUP)
+    EMakeSetTargetPropertyM(${TOP_KIT} KIT_LINK_DIRS       LIST_VAR ${KIT_LINK_DIRS}     APPEND_NO_DUP)
 
     EMakeSetTargetPropertyM(${TOP_KIT} COMPONENTS  LIST_VAR ${TOP_KIT}::${s_kit} APPEND_NO_DUP)
 

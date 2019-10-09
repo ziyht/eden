@@ -690,7 +690,9 @@ function(_SetupLibM)
     _CheckValM(${KIT_NAME} KIT_EXPORT_DIR   ""                           ${COMMONS_DIR}/libs/${KIT_NAME})
     _CheckTargetNameM(${KIT_NAME} "${KIT_TARGET}" )
 
+    # EMakeInff("${KIT_DEPENDS}")
     EBuildCheckDependsM(${KIT_NAME} "${KIT_DEPENDS}")
+    # EMakeInff("${KIT_LIBRARIES_SYS}")
 
     _ParsePostfix("${KIT_POSTFIX}")
 
@@ -714,6 +716,8 @@ function(_SetupLibM)
     EMakeSetTargetPropertyM(${KIT_NAME} KIT_LIBRARIES_SYS   LIST_VAR ${KIT_LIBRARIES_SYS})
     EMakeSetTargetPropertyM(${KIT_NAME} KIT_INCLUDE_DIRS    LIST_VAR ${KIT_INCLUDE_DIRS})
     EMakeSetTargetPropertyM(${KIT_NAME} KIT_LINK_DIRS       LIST_VAR ${KIT_LINK_DIRS}    APPEND)
+
+
 
     # 设置其它相关的目标属性
     EMakeSetTargetPropertyM(${KIT_NAME} KIT_SOURCES_DIR     VAR      ${LIBS_DIR}/${M_LIB_NAME})
