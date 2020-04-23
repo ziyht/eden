@@ -113,6 +113,10 @@ if(__EBUILD_CONFIGURING_BUILD)
         set(_TEST_AFTER_INSTALL  ${KIT_TEST_AFTER_INSTALL})
     endif()
 
+    if(KIT_BUILD_IN_SOURCE)
+        set(KIT_BINARY_DIR)
+    endif()
+
     # --------
     # 添加外部库编译
     ExternalProject_Add(${KIT_NAME}
@@ -135,7 +139,9 @@ if(__EBUILD_CONFIGURING_BUILD)
         CMAKE_CACHE_ARGS    ${KIT_CMAKE_CACHE_ARGS}
 
         # -- build
+        BUILD_IN_SOURCE     ${KIT_BUILD_IN_SOURCE}
         BUILD_COMMAND       ${KIT_BUILD_COMMAND}
+
 
         # -- test and install
         TEST_COMMAND        ${KIT_TEST_COMMAND}
@@ -151,5 +157,3 @@ if(__EBUILD_CONFIGURING_BUILD)
 endif()
 
 endmacro()
-
-
