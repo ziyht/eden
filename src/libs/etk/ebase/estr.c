@@ -39,14 +39,14 @@
 #define   STB_SPRINTF_USING_STRCHR                      // strchr is very fast now
 #define   STB_SPRINTF_USING_MEMCPY                      // memcpy is very fast now
 #define   STB_SPRINTF_COPY_STR_PROMOTION                // memcpy is ok
-#define   STB_SPRINTF_MIN              ((int*)user)[0]  //
+#define   STB_SPRINTF_MIN              ((int*)user)[0]  // current avail size, using int because it compared type is int in stb
 #define   STB_SPRINTF_DECORATE(name)   __estr_##name    // defined it will not conflict with other using
 #include "libs/stb_sprintf.h"
 #include "libs/estr_p.h"
 
 #include "estr.h"
 
-#define ESTR_VERSION "estr 1.3.0"       // import stb_sprintf.c
+#define ESTR_VERSION "estr 1.3.1"       // fix bug of _wrtP and _catP of not set last character to '\0', perfict len check in sstr_catP
 
 /// -- helper ------------------------------
 
@@ -391,33 +391,32 @@ i64 __estr_catF(estr*s, constr fmt, ...       ) { va_list ap; va_start(ap, fmt);
 typedef struct estr__context {
     int  avail;      // set in the first place so we can get it directly
     estr s;          // handle for compat estr
-    cstr buf;
 }estr__context;
 
 static char* __estr__clamp_callback(char *buf, void *user, int len)
 {
-    estr__context *c = (estr__context *)user;
+    size_t l; estr__context *c = (estr__context *)user;
 
     _s_incLen(c->s, len);
     _s_ensure(c->s, 16);
 
-    c->avail = (int)_s_avail(c->s);
+    c->avail = (l = _s_avail(c->s)) > INT32_MAX ? INT32_MAX : (int)l;
 
-    return c->s + _s_len(c->s); // go direct into buffer if you can
+    return c->s + _s_len(c->s); // go direct write pos
 }
 
 static __always_inline i64 __estr_wrtA_P(estr*s, constr fmt, va_list ap)
 {
-    estr__context c;
-    i64 l;
+    estr__context c; size_t l;
 
     if((c.s = *s)) _s_setLen(c.s, 0);
     else           c.s = _s_new(8);
 
-    c.avail = (int)_s_cap(c.s);
-    c.buf   = c.s;
+    c.avail = (l = _s_avail(c.s)) > INT32_MAX ? INT32_MAX : (int)l;
 
-    l =  __estr_vsprintfcb( __estr__clamp_callback, &c, c.buf, fmt, ap );
+    l =  __estr_vsprintfcb( __estr__clamp_callback, &c, c.s, fmt, ap );
+
+    c.s[_s_len(c.s)] = '\0';
 
     *s = c.s;
 
@@ -426,15 +425,16 @@ static __always_inline i64 __estr_wrtA_P(estr*s, constr fmt, va_list ap)
 
 static __always_inline i64 __estr_catA_P(estr*s, constr fmt, va_list ap)
 {
-    estr__context c;
-    i64 l;
+    estr__context c; i64 l; cstr buf;
 
-    if((c.s = *s)) c.buf = c.s + _s_len(c.s);
-    else           c.buf = c.s = _s_new(8);
+    if((c.s = *s)) buf = c.s + _s_len(c.s);
+    else           buf = c.s = _s_new(8);
 
-    c.avail = (int)_s_avail(c.s);
+    c.avail = _s_avail(c.s);
 
-    l =  __estr_vsprintfcb( __estr__clamp_callback, &c, c.buf, fmt, ap );
+    l =  __estr_vsprintfcb( __estr__clamp_callback, &c, buf, fmt, ap );
+
+    c.s[_s_len(c.s)] = '\0';
 
     *s = c.s;
 
@@ -1950,33 +1950,63 @@ static i64 __sstr_catA_F(sstr s, constr fmt, va_list ap)
     return _s_len(s) - his_len;
 
 err_ret:
-    return _ERR_HANDLE;
+    return -(_s_len(s) - his_len);
+    //return _ERR_HANDLE;
 }
 
 typedef struct sstr__context {
-    int  avail;      // set in the first place so we can get it directly
-    estr s;         // handle for compat estr
+    int  avail;     // set in the first place so we can get it directly
+    int  wrote;
+    sstr s;         // handle for compat sstr
 }sstr__context;
 
+// when call this cb, the __estr_vsprintfcb() has already wrote characters to dest
 static char* __sstr_stbsp__clamp_callback(char *buf, void *user, int len)
 {
-   sstr__context *c = (sstr__context *)user;
+    size_t l; sstr__context *c = (sstr__context *)user;
 
-   E_UNUSED(buf);
+    E_UNUSED(buf);
 
-   _s_incLen(c->s, len);
+    // no enough space like %s
+    if (len == 0)
+    {
+        if (c->wrote)
+            c->wrote = -1;
 
-   return _s_avail(c->s) ? c->s + _s_len(c->s) : 0;
+        return 0;
+    }
+    // avail reach 0, we using avail to record the invalid counter by __estr_vsprintfcb
+    else if(0 == c->avail)
+    {
+        c->avail -= 1;    //  -= len; len is always 1 in this case
+        return 0;
+    }
+
+    // ok, increase len and set tag
+    _s_incLen(c->s, len);
+    c->avail = (l = _s_avail(c->s)) > INT32_MAX ? INT32_MAX : (int)l;
+    c->wrote = 1;
+
+    return c->s + _s_len(c->s);
 }
 
 static inline i64 __sstr_catA_P(sstr s, constr fmt, va_list ap )
 {
-    sstr__context c;
+    sstr__context c; i64 l;
 
-    c.s     = s + _s_len(s);
-    c.avail = (int)_s_avail(s);
+    c.avail = (l = _s_avail(s)) > INT32_MAX ? INT32_MAX : (int)l;
+    c.wrote = 0;
+    c.s     = s;
 
-    return  __estr_vsprintfcb ( __sstr_stbsp__clamp_callback, &c, c.s, fmt, ap );
+    is0_ret(c.avail, 0);
+
+    l = __estr_vsprintfcb ( __sstr_stbsp__clamp_callback, &c, s + _s_len(s), fmt, ap );
+
+    c.s[_s_len(c.s)] = '\0';
+
+    is0_ret(c.wrote, 0);
+
+    return (c.avail < 0 || c.wrote < 0) ? -l - c.avail : l;
 }
 
 /// -- sstr utils ---------------------------------------

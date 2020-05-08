@@ -431,7 +431,7 @@ typedef struct __sort_args_s{
 #pragma pack()
 
 static __always_inline void  __ell_sort(ell l, __sort_args args);
-static __always_inline _elln __merg_sort(_elln a, _elln b, uint len, __sort_args args);
+static                 _elln __merg_sort(_elln a, _elln b, uint len, __sort_args args);
 
 void  ell_sort  (ell l, eobj_cmp_cb    cmp)            { if(l) { __sort_args_t args = {(eobj_cmp_ex_cb)cmp, EVAL_0}; __ell_sort(l, &args); } }
 void  ell_sort_r(ell l, eobj_cmp_ex_cb cmp, eval prvt) { if(l) { __sort_args_t args = {cmp,                 prvt  }; __ell_sort(l, &args); }}

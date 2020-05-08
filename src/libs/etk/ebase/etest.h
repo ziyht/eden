@@ -168,6 +168,7 @@ static int __etest_cmp_num(double fa, double fb, const char* taga, const char* t
         case __ETEST_NUM_EXPECT_GE: passed = (fa >= fb); break;
         case __ETEST_NUM_EXPECT_LT: passed = (fa <  fb); break;
         case __ETEST_NUM_EXPECT_LE: passed = (fa <= fb); break;
+        default                   : passed =          0; break;
     }
 
     if(passed)

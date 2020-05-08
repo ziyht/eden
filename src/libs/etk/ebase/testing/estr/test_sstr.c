@@ -3,6 +3,80 @@
 #include "etest.h"
 #include "estr.h"
 
+static int sstr_basic()
+{
+    char buf[12]; sstr s;
+
+    s = sstr_init(buf, sizeof(buf));
+
+    //sstr_show(s);
+
+    // --
+    sstr_wipe(s);
+    eexpect_eq(sstr_wrtP(s, "1234"), 4);
+    eexpect_eq(sstr_wrtP(s, "123"),  3);
+    eexpect_str(s, "123");
+
+    sstr_wipe(s);
+    eexpect_eq(sstr_catP(s, "1234"), 4); sstr_clear(s);
+    eexpect_eq(sstr_catP(s, "123"),  3);
+    eexpect_str(s, "123");
+
+    // --
+    sstr_wipe(s);
+    eexpect_eq(sstr_wrtF(s, "1234"), 4);
+    eexpect_eq(sstr_wrtF(s, "123"),  3);
+    eexpect_str(s, "123");
+
+    sstr_wipe(s);
+    eexpect_eq(sstr_catF(s, "1234"), 4); sstr_clear(s);
+    eexpect_eq(sstr_catF(s, "123"),  3);
+    eexpect_str(s, "123");
+
+    // --
+    sstr_wipe(s);
+    eexpect_eq(sstr_wrtP(s, "12345678" ), 8);
+    eexpect_lt(sstr_wrtP(s, "123456789"), 0);
+    eexpect_lt(sstr_wrtP(s, "123456789012345678"), 0);
+    eexpect_str(s, "12345678");
+
+    sstr_wipe(s);
+    eexpect_eq(sstr_wrtF(s, "12345678" ), 8);
+    eexpect_lt(sstr_wrtF(s, "123456789"), 0);
+    eexpect_lt(sstr_wrtF(s, "123456789012345678"), 0);
+    eexpect_str(s, "12345678");
+
+    // --
+    sstr_wipe(s);
+    eexpect_eq(sstr_catP(s, "1234" ), 4);
+    eexpect_le(sstr_catP(s, "56789"), 0);
+    eexpect_le(sstr_catP(s, "012345678"), 0);
+    eexpect_str(s, "12345678");
+
+    sstr_wipe(s);
+    eexpect_eq(sstr_catF(s, "12345678" ), 8);
+    eexpect_le(sstr_catF(s, "123456789"), 0);
+    eexpect_le(sstr_catF(s, "123456789012345678"), 0);
+    eexpect_str(s, "12345678");
+
+    // --
+    sstr_wipe(s);
+    eexpect_eq(sstr_catP(s, "%s", "1234" ), 4);
+    eexpect_eq(sstr_catP(s, "%s", "567"  ), 3);
+    eexpect_le(sstr_catP(s, "%s", "890"  ), 0);
+    eexpect_le(sstr_catP(s, "%s", "012345678"), 0);
+    eexpect_str(s, "12345678");
+
+    sstr_wipe(s);
+    eexpect_eq(sstr_catF(s, "%s", "1234" ), 4);
+    eexpect_eq(sstr_catF(s, "%s", "567"  ), 3);
+    eexpect_le(sstr_catF(s, "%s", "890"  ), 0);
+    eexpect_le(sstr_catF(s, "%s", "012345678"), 0);
+    //eexpect_str(s, "12345678");
+
+    return ETEST_OK;
+}
+
 static int sstr_subc_test()
 {
     estr e0, e1; cstr from, to; char buf0[100]; char buf1[100]; i64 cnt;
@@ -209,6 +283,7 @@ static int sstr_subs_test()
 
 int test_sstr(int argc, char* argv[])
 {
+    ETEST_RUN(sstr_basic());
     ETEST_RUN(sstr_subc_test());
     ETEST_RUN(sstr_subs_test());
 

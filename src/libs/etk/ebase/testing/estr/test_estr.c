@@ -3,6 +3,37 @@
 
 #include "estr.h"
 
+static int estr_basic()
+{
+    estr s;
+
+    s = 0;
+    eexpect_eq(estr_wrtP(s, "1234"), 4);
+    eexpect_eq(estr_wrtP(s, "123" ), 3);
+    eexpect_str(s, "123");
+    estr_free(s);
+
+    s = 0;
+    eexpect_eq(estr_catP(s, "1234"), 4); estr_clear(s);
+    eexpect_eq(estr_catP(s, "123" ), 3);
+    eexpect_str(s, "123");
+    estr_free(s);
+
+    s = 0;
+    eexpect_eq(estr_wrtF(s, "1234"), 4);
+    eexpect_eq(estr_wrtF(s, "123" ), 3);
+    eexpect_str(s, "123");
+    estr_free(s);
+
+    s = 0;
+    eexpect_eq(estr_catF(s, "1234"), 4); estr_clear(s);
+    eexpect_eq(estr_catF(s, "123" ), 3);
+    eexpect_str(s, "123");
+    estr_free(s);
+
+    return ETEST_OK;
+}
+
 static int estr_wrt_cat_W_test()
 {
     estr s = 0;
@@ -296,6 +327,8 @@ int estr_subs_test()
 
 int test_estr(int argc, char* argv[])
 {
+    ETEST_RUN( estr_basic() );
+
     ETEST_RUN( estr_wrt_cat_W_test() );
     ETEST_RUN( estr_wrt_cat_L_test() );
 

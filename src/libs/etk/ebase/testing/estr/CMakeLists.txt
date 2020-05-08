@@ -17,6 +17,8 @@ cmake_minimum_required(VERSION 2.8.1)
 # )
 
 ETestAddTestSet(estr
+    TYPE   Unit
+
     CASES  test_estr.c
            test_sstr.c
            test_split.c
@@ -31,7 +33,7 @@ ETestAddTestSet(cmpQString OFF
 
 )
 
-ETestAddTestSet(
+ETestAddTestSet(estr
     TYPE    Benchmark
 
     CASES   test_performance.c
