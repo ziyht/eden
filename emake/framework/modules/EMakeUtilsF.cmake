@@ -50,7 +50,7 @@ function(EMakeGetProjectDirF)
     endif()
 
     set(_check_1 "")
-    set(_check_2 "cmake/emake/framework/modules/EmakeFramework.cmake")
+    set(_check_2 "emake/framework/modules/EmakeFramework.cmake")
 
     set(_root_dir)      # 主项目根目录
     set(_project_dir)   # 主项目目录

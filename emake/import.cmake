@@ -38,6 +38,8 @@ macro(EMakeImport _dir)
 
 endmacro()
 
+cmake_policy(SET CMP0053 NEW)
+
 #! --------------------------------
 #! import framework
 #! 在 相关目录中设置 配置

@@ -370,7 +370,7 @@ function(EBuildExtAddExport i_target )
         if(M_TYPE STREQUAL "FILE")
             return()
         else()
-            EMakeErrF("Please set NAME for you KIT target '${_KIT_NAME}::${i_target}'")
+            #EMakeErrF("Please set NAME for you KIT target '${_KIT_NAME}::${i_target}'")
         endif()
 
     endif()
@@ -453,17 +453,19 @@ function(EBuildExtAddExport i_target )
     set(_runtime_name)
     set(_link_name)
 
-    if(_archive_extention)
-        set(_archive_name ${_DF_LIB_PREFIX}${M_NAME}${_name_postfix}${_archive_extention})
-        set(_link_name    ${M_NAME}${_name_postfix}${_archive_extention})
-    endif()
-    if(_runtime_extention)
-        set(_runtime_name ${_DF_LIB_PREFIX}${M_NAME}${_name_postfix}${_runtime_extention})
-
-        if(NOT WIN32)
-            set(_link_name    ${M_NAME}${_name_postfix}${_runtime_extention})
+    if(M_NAME)
+        if(_archive_extention)
+            set(_archive_name ${_DF_LIB_PREFIX}${M_NAME}${_name_postfix}${_archive_extention})
+            set(_link_name    ${M_NAME}${_name_postfix}${_archive_extention})
         endif()
+        if(_runtime_extention)
+            set(_runtime_name ${_DF_LIB_PREFIX}${M_NAME}${_name_postfix}${_runtime_extention})
 
+            if(NOT WIN32)
+                set(_link_name    ${M_NAME}${_name_postfix}${_runtime_extention})
+            endif()
+
+        endif()
     endif()
 
     # -- 生成目标，并为目标创建相关属性

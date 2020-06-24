@@ -21,6 +21,7 @@ macro(_configuring_qt_core)
 
         if(QT_VERSION VERSION_GREATER "4")
 
+            cmake_policy(SET CMP0053 NEW)
             find_package(Qt5 COMPONENTS Core Gui)
 
             if(NOT Qt5_FOUND)
@@ -83,9 +84,10 @@ macro(EBuildSetupQtM)
             _configuring_qt_core()
 
             # try find qt package
-            # set(QT5_COMPONENTS Core Gui Xml XmlPatterns Concurrent Sql Test Widgets OpenGL UiTools)
+            set(QT5_COMPONENTS Core Gui Xml XmlPatterns Concurrent Sql Test Widgets OpenGL UiTools)
             string(REGEX REPLACE "^(Q|q)(T|t)(4|5)::"  "" component ${package})
 
+            cmake_policy(SET CMP0053 NEW)
             find_package(Qt5 COMPONENTS ${component} QUIET)
 
             if(NOT Qt5_FOUND)

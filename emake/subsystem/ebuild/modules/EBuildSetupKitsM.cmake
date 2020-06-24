@@ -655,7 +655,7 @@ function(_SetupExtM)
     #_ClearSetupKitBuffer()
 endfunction()
 
-function(_SetupLibM)
+macro(_SetupLibM)
     cmake_parse_arguments(M "" "LIB_NAME" "" ${ARGN})
 
     if(NOT M_LIB_NAME)
@@ -755,9 +755,9 @@ function(_SetupLibM)
     _ScanSeparateKit(${KIT_NAME} ${KIT_DIR})
 
     # 清空变量缓存
-    #_ClearSetupKitBuffer()
+    _ClearSetupKitBuffer()
 
-endfunction()
+endmacro()
 
 function(_SetupPlgM)
     cmake_parse_arguments(M "" "PLG_NAME" "" ${ARGN})
