@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 # ------------------------------------
 # -- 加载 emake 框架
-include(cmake/emake/import.cmake)
+include(import.cmake)
 
 # ------------------------------------
 # -- 添加 kit

@@ -63,7 +63,7 @@ _E_X86                      win32|linux_32
 _E_X64                      win64|linux_64
 _CRT_SECURE_NO_WARNINGS     win32|win64
 
-MAIN_PROJECT_ROOT_DIR       all             # 当前主项目目录（包含 cmake/emake 框架的目录）
+MAIN_PROJECT_ROOT_DIR       all             # 当前主项目目录（包含 cmake/emake 框架的目录）, 已弃用
 MAIN_PROJECT_DIR            all             # 当前 project 目录（顶级 CMakeLists.txt 所在目录）
 
 

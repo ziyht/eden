@@ -27,9 +27,13 @@ function(EMakeGetProjectDirF)
         return()
     endif()
 
+    # changed: using CMakeLists.txt directly
+    EMakeSetGlobalPropertyM(MAIN_PROJECT_ROOT_DIR VAR ${CMAKE_CURRENT_SOURCE_DIR})
+    EMakeSetGlobalPropertyM(MAIN_PROJECT_DIR      VAR ${CMAKE_CURRENT_SOURCE_DIR})
+
     if(M_MAIN_PROJECT_ROOT_DIR)
         EMakeGetGlobalPropertyM(MAIN_PROJECT_ROOT_DIR _o_dir NO_CHECK)
-        if(${_o_dir})
+        if(NOT ${_o_dir} STREQUAL "")
             set(MAIN_PROJECT_ROOT_DIR ${_o_dir} PARENT_SCOPE)
         else()
             set(MAIN_PROJECT_ROOT_DIR_NEEDED 1)
@@ -38,7 +42,7 @@ function(EMakeGetProjectDirF)
 
     if(M_MAIN_PROJECT_DIR)
         EMakeGetGlobalPropertyM(MAIN_PROJECT_DIR _o_dir NO_CHECK)
-        if(${_o_dir})
+        if(NOT ${_o_dir} STREQUAL "")
             set(MAIN_PROJECT_DIR ${_o_dir} PARENT_SCOPE)
         else()
             set(MAIN_PROJECT_DIR_NEEDED 1)

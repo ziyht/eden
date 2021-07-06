@@ -16,6 +16,9 @@
 
 macro(EBuildGenerateM)
 
+    EMakeGetProjectDirF(MAIN_PROJECT_DIR)
+    EMakeInff(ProjectDir: ${MAIN_PROJECT_DIR})
+
     EBuildScanKitsM()
     EBuildSetupKitsM()
     EBuildValidateKitsM()
